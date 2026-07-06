@@ -656,7 +656,8 @@
   </div>
 
   <div class="section-title" style="margin-top:32px">Top rejection concentration — CSM outreach targets</div>
-  <p class="section-subtitle">Live clients with 500+ POs in the last 12 months, ranked by rejection rate. Top of table = highest CSM leverage per outreach hour.</p>
+  <p class="section-subtitle">Live clients with 500+ POs in the last 12 months, ranked by rejection rate. Top of table = highest CSM leverage per outreach hour. Pattern column classifies each client into <em>coaching-heavy</em> (product-fixable via entry-form validation), <em>duplicate-heavy</em> (product-fixable via create-time dedupe), <em>policy-heavy</em> (workflow decision, not product-fixable), <em>ownership-heavy</em> (property lifecycle cleanup), or <em>mixed / insufficient signal</em> (needs deep-dive).</p>
+  <div id="cs-pattern-strip" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;font-size:12px"></div>
   <div class="table-surface">
     <table>
       <thead>
@@ -666,11 +667,12 @@
           <th style="text-align:right">POs (12 mo)</th>
           <th style="text-align:right">Rejected</th>
           <th style="text-align:right">Rejection %</th>
+          <th title="Derived from top-note ILIKE classification. Hover a badge for the pattern's meaning.">Pattern</th>
           <th>CS theme</th>
         </tr>
       </thead>
       <tbody id="cs-clients-tbody">
-        <tr><td colspan="6" style="text-align:center;color:var(--subtle);padding:24px">Loading top-rejection clients…</td></tr>
+        <tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:24px">Loading top-rejection clients…</td></tr>
       </tbody>
     </table>
   </div>
@@ -708,10 +710,12 @@ Promise.all([
   loadData('poHealthMonthly', './data/po-health-monthly.json'),
   loadData('csTopClients', './data/cs-top-clients.json'),
   loadData('csEpcDeepDive', './data/local/cs-epc-deep-dive.json'),
+  loadData('csRealtyLogisticsDeepDive', './data/local/cs-realty-logistics-deep-dive.json'),
 ]).then(hydrate);
 
 const DEEP_DIVE_INDEX = {
   15769: 'csEpcDeepDive',
+  10502: 'csRealtyLogisticsDeepDive',
 };
 
 function fmtNum(n) {
@@ -858,7 +862,41 @@ function hydrateRejectionReasons() {
   `;
 }
 
+const PATTERN_STYLES = {
+  'coaching-heavy':     { bg: 'rgba(56,132,255,0.15)',  fg: '#3884ff', label: 'coaching' },
+  'duplicate-heavy':    { bg: 'rgba(139,92,246,0.15)',  fg: '#8b5cf6', label: 'duplicate' },
+  'policy-heavy':       { bg: 'rgba(239,68,68,0.15)',   fg: '#ef4444', label: 'policy' },
+  'ownership-heavy':    { bg: 'rgba(245,158,11,0.15)',  fg: '#f59e0b', label: 'ownership' },
+  'mixed':              { bg: 'rgba(148,163,184,0.20)', fg: '#64748b', label: 'mixed' },
+  'insufficient signal':{ bg: 'rgba(148,163,184,0.10)', fg: '#94a3b8', label: 'unclassified' },
+};
+
+function renderPatternBadge(pattern, note) {
+  const s = PATTERN_STYLES[pattern] || PATTERN_STYLES['insufficient signal'];
+  const title = note ? note.replace(/"/g, '&quot;') : pattern;
+  return `<span title="${title}" style="display:inline-block;padding:2px 8px;background:${s.bg};color:${s.fg};border-radius:3px;font-size:11px;font-weight:600;white-space:nowrap">${s.label}</span>`;
+}
+
+function hydrateCsPatternStrip() {
+  const strip = document.getElementById('cs-pattern-strip');
+  if (!strip) return;
+  const d = state.csTopClients;
+  if (!d || !d.pattern_summary) return;
+  const order = ['coaching-heavy', 'duplicate-heavy', 'policy-heavy', 'ownership-heavy', 'mixed', 'insufficient signal'];
+  const total = Object.values(d.pattern_summary).reduce((a, b) => a + b, 0);
+  strip.innerHTML = order
+    .filter(p => d.pattern_summary[p])
+    .map(p => {
+      const s = PATTERN_STYLES[p];
+      const n = d.pattern_summary[p];
+      const pct = total ? Math.round(100 * n / total) : 0;
+      return `<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:${s.bg};color:${s.fg};border-radius:4px;font-weight:600"><span style="font-size:14px">${n}</span><span style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">${s.label}</span><span style="font-size:11px;color:var(--subtle);font-weight:400">(${pct}%)</span></div>`;
+    })
+    .join('');
+}
+
 function hydrateCsClientsTable() {
+  hydrateCsPatternStrip();
   const tbody = document.getElementById('cs-clients-tbody');
   if (!tbody) return;
   const d = state.csTopClients;
@@ -871,6 +909,7 @@ function hydrateCsClientsTable() {
       : '';
     const rowStyle = hasDeepDive ? 'cursor:pointer' : '';
     const rowAttrs = hasDeepDive ? `onclick="openDeepDive(${r.client_id})" class="cs-row-clickable"` : '';
+    const patternCell = r.pattern ? renderPatternBadge(r.pattern, r.pattern_note) : '';
     return `
       <tr ${rowAttrs} style="${rowStyle}">
         <td style="color:var(--subtle);text-align:center">${r.rank}</td>
@@ -878,6 +917,7 @@ function hydrateCsClientsTable() {
         <td style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.total_pos_12mo)}</td>
         <td style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.pos_with_any_rejection)}</td>
         <td style="text-align:right;font-variant-numeric:tabular-nums;color:${rateColor};font-weight:600">${fmtPct(r.rejection_rate_pct)}</td>
+        <td>${patternCell}</td>
         <td style="font-size:12px;color:var(--subtle)">${r.cs_theme}</td>
       </tr>
     `;
@@ -992,11 +1032,11 @@ function openDeepDive(clientId) {
         ${d.rejecter_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.rejecter_narrative}</div>` : ''}
       </div>
 
+      ${(d.csm_artifacts && d.csm_artifacts.length) ? `
       <div style="margin-top:24px;padding:12px 16px;background:var(--surface2);border-radius:6px;font-size:12px;color:var(--subtle);line-height:1.6">
         <strong style="color:var(--ink)">Full CSM prep artifacts:</strong><br/>
-        \u2022 <code>knowledge/csm-quick-wins/epc-real-estate/client-wins-epc-2026-07-06.md</code> \u2014 CSM-facing talking points<br/>
-        \u2022 <code>knowledge/csm-quick-wins/epc-real-estate/product-ops-wins-epc-2026-07-06.md</code> \u2014 PM/product routing
-      </div>
+        ${d.csm_artifacts.map(a => `\u2022 <code>${a.path}</code> \u2014 ${a.label}`).join('<br/>')}
+      </div>` : ''}
     </div>
   `;
   drawer.style.display = 'flex';
