@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Metrics Dashboard - Domo Request</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #2c3e50; }
+        .header { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); color: white; padding: 2rem; text-align: center; }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .header p { font-size: 1rem; opacity: 0.9; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .filters { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-group label { font-size: 0.875rem; font-weight: 600; color: #5e35b1; }
+        .filter-group select { padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.875rem; min-width: 200px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .metric-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .metric-label { font-size: 0.875rem; color: #7e8ba3; margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-size: 2rem; font-weight: 700; color: #2c3e50; margin-bottom: 0.5rem; }
+        .metric-change { font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem; }
+        .metric-change.positive { color: #27ae60; }
+        .metric-change.negative { color: #e74c3c; }
+        .chart-section { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .chart-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: #2c3e50; }
+        .chart-container { height: 300px; position: relative; }
+        .two-column-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .info-banner { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3); }
+        .info-banner h3 { margin-bottom: 0.5rem; font-size: 1.25rem; }
+        .info-banner p { opacity: 0.95; line-height: 1.6; }
+        .data-table-section { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: #f8f9fa; padding: 1rem; text-align: left; font-weight: 600; color: #5e35b1; border-bottom: 2px solid #e0e0e0; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e0e0e0; color: #2c3e50; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .metric-label-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+        .metric-label-row .metric-label { margin-bottom: 0; }
+        .tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
+        .tooltip-icon { width: 15px; height: 15px; background: #c0c8d4; color: white; border-radius: 50%; font-size: 0.65rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; cursor: default; flex-shrink: 0; }
+        .tooltip-icon:hover + .tooltip-text, .tooltip-icon:focus + .tooltip-text { opacity: 1; visibility: visible; }
+        .tooltip-text { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #2c3e50; color: white; font-size: 0.75rem; line-height: 1.4; padding: 0.5rem 0.75rem; border-radius: 6px; white-space: normal; width: 220px; opacity: 0; visibility: hidden; transition: opacity 0.2s; pointer-events: none; z-index: 100; font-weight: 400; text-transform: none; letter-spacing: 0; }
+        .tooltip-text::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #2c3e50; }
+        @media (max-width: 768px) { .filters { flex-direction: column; } .metrics-grid { grid-template-columns: 1fr; } .two-column-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Invoice Metrics Dashboard</h1>
+        <p>Evergreen AP product insights — invoice volume, processing, approvals, and client adoption | Domo Request</p>
+    </div>
+
+    <div class="container">
+        <div class="info-banner">
+            <h3>📊 What This Dashboard Provides</h3>
+            <p>Track invoice volume, processing times, approval metrics, and client adoption. Replace ad-hoc dev queries with always-on insights to measure feature impact and support strategic decisions. IPS performance is tracked separately.</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>Date Range</label>
+                <select>
+                    <option>Last 30 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>Last 6 Months</option>
+                    <option>Last Year</option>
+                    <option>Custom Range</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Invoice Source</label>
+                <select>
+                    <option>All Sources</option>
+                    <option>Add Invoice (Manual)</option>
+                    <option>Bulk Invoice Entry</option>
+                    <option>ELI Invoice Entry</option>
+                    <option>Invoice Processing (Manual Entry/Upload)</option>
+                    <option>Invoice Import</option>
+                    <option>Purchase Orders: Create Invoice</option>
+                    <option>Dashboard Shortcut</option>
+                    <option>Vendor Portal</option>
+                    <option>Invoice Template</option>
+                    <option>Recurring Transaction</option>
+                    <option>Duplicate / Use Previous</option>
+                    <option>API</option>
+                    <option>UEM</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Type <span style="font-size:0.7rem; color:#bdc3c7; font-weight:400;">(temp — removing at SAPT)</span></label>
+                <select>
+                    <option>All Types</option>
+                    <option>Standard</option>
+                    <option>Catalog</option>
+                    <option>Job Costing</option>
+                    <option>Credit Memo</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select>
+                    <option>All Statuses</option>
+                    <option>Pending</option>
+                    <option>Rejected</option>
+                    <option>Posted</option>
+                    <option>Deleted</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Client Segment</label>
+                <select>
+                    <option>All Clients</option>
+                    <option>Enterprise (500+ units)</option>
+                    <option>Mid-Market (100-499 units)</option>
+                    <option>Small (< 100 units)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">Total Invoices Created</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Total number of invoices created across all active clients in the selected date range. Excludes test, demo, and sandbox sites.</span></span>
+                </div>
+                <div class="metric-value">24,512</div>
+                <div class="metric-change positive">↑ 14% vs. last month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">Active Clients Using Invoices</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Number of client accounts that created at least one invoice in the selected date range. Live Rapid and Standard clients only.</span></span>
+                </div>
+                <div class="metric-value">4,892</div>
+                <div class="metric-change positive">↑ 7% vs. last month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">Avg End-to-End Processing Time</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Average number of days from invoice creation to Posted status. Measures full AP efficiency — lower is better.</span></span>
+                </div>
+                <div class="metric-value">1.8 days</div>
+                <div class="metric-change negative">↓ 18% improvement</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">First-Time-Right Rate</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Percentage of invoices that moved from Pending to Posted without being rejected or rerouted at any point.</span></span>
+                </div>
+                <div class="metric-value">68.4%</div>
+                <div class="metric-change positive">↑ 7% vs. last month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">Early Pay Discount Capture</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Total dollar value of early payment discounts captured by clients in the selected period. Higher = better AP speed and vendor relationship management.</span></span>
+                </div>
+                <div class="metric-value">$124K</div>
+                <div class="metric-change positive">↑ 22% vs. last month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">PO-to-Invoice Cycle Time</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Average number of days between a PO being approved and a matching invoice being posted. Measures procure-to-pay workflow speed.</span></span>
+                </div>
+                <div class="metric-value">5.2 days</div>
+                <div class="metric-change negative">↓ 8% improvement</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">Rejection/Reroute Rate</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Percentage of invoices that were rejected or rerouted at least once before reaching Posted status. High rates may indicate unclear approval rules or data quality issues.</span></span>
+                </div>
+                <div class="metric-value">11.3%</div>
+                <div class="metric-change negative">↓ 12% improvement</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">User Penetration Rate</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Percentage of licensed users who have actively created or processed at least one invoice in the selected date range. Measures how broadly the invoice module is being adopted across your client base.</span></span>
+                </div>
+                <div class="metric-value">71.8%</div>
+                <div class="metric-change positive">↑ 4% vs. last month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label-row">
+                    <span class="metric-label">PDF Attachment Rate</span>
+                    <span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">Percentage of invoices with at least one file attached. Based on has_attachment flag (LEFT JOIN with Invoice_Attachments table). Higher = better documentation compliance.</span></span>
+                </div>
+                <div class="metric-value">74.2%</div>
+                <div class="metric-change positive">↑ 3% vs. last month</div>
+            </div>
+        </div>
+
+        <div class="two-column-grid">
+            <div class="chart-section">
+                <div class="chart-title">Invoice Volume Trend (Monthly)</div>
+                <div class="chart-container"><canvas id="invoiceVolumeChart"></canvas></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">Invoice Distribution by Source</div>
+                <div class="chart-container"><canvas id="invoiceSourceChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Invoice Processing Funnel</div>
+            <div class="chart-container"><canvas id="invoiceStatusChart"></canvas></div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Approval Time Distribution</div>
+            <div class="chart-container"><canvas id="invoiceApprovalChart"></canvas></div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Invoice Volume by Entry Method (Stacked Monthly)</div>
+            <div class="chart-container"><canvas id="invoiceEntryChart"></canvas></div>
+        </div>
+
+        <div class="data-table-section">
+            <div class="chart-title">Top 20 Clients by Invoice Volume</div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Client Name</th><th>Type</th><th>Invoice Count</th><th>Avg Processing Time</th><th>Volume Trend</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Greystar Real Estate Partners</td><td>Standard</td><td>2,842</td><td>1.1 days</td><td style="color:#27ae60;">↑ 35%</td></tr>
+                    <tr><td>Lincoln Property Company</td><td>Standard</td><td>2,284</td><td>1.3 days</td><td style="color:#27ae60;">↑ 28%</td></tr>
+                    <tr><td>Avenue5 Residential</td><td>Standard</td><td>1,847</td><td>1.5 days</td><td style="color:#27ae60;">↑ 22%</td></tr>
+                    <tr><td>Pinnacle Property Management</td><td>Job Costing</td><td>1,542</td><td>2.2 days</td><td style="color:#27ae60;">↑ 18%</td></tr>
+                    <tr><td>BH Management Services</td><td>Standard</td><td>1,284</td><td>1.8 days</td><td style="color:#27ae60;">↑ 15%</td></tr>
+                    <tr><td>Cushman & Wakefield</td><td>Standard</td><td>1,147</td><td>0.9 days</td><td style="color:#27ae60;">↑ 42%</td></tr>
+                    <tr><td>Bozzuto Management</td><td>Standard</td><td>1,047</td><td>2.8 days</td><td style="color:#e74c3c;">↓ 3%</td></tr>
+                    <tr><td>AMLI Residential</td><td>Standard</td><td>924</td><td>2.1 days</td><td style="color:#27ae60;">↑ 12%</td></tr>
+                    <tr><td>Riverstone Residential</td><td>Job Costing</td><td>867</td><td>3.1 days</td><td style="color:#27ae60;">↑ 8%</td></tr>
+                    <tr><td>Morgan Properties</td><td>Standard</td><td>792</td><td>1.7 days</td><td style="color:#27ae60;">↑ 19%</td></tr>
+                    <tr><td>Waterton Residential</td><td>Standard</td><td>748</td><td>2.0 days</td><td style="color:#27ae60;">↑ 14%</td></tr>
+                    <tr><td>Simpson Housing Solutions</td><td>Standard</td><td>712</td><td>1.9 days</td><td style="color:#27ae60;">↑ 9%</td></tr>
+                    <tr><td>EquityMultiple</td><td>Job Costing</td><td>684</td><td>2.4 days</td><td style="color:#27ae60;">↑ 6%</td></tr>
+                    <tr><td>Prometheus Real Estate Group</td><td>Standard</td><td>651</td><td>1.6 days</td><td style="color:#27ae60;">↑ 21%</td></tr>
+                    <tr><td>Irvine Company Apartment Communities</td><td>Catalog</td><td>623</td><td>1.2 days</td><td style="color:#27ae60;">↑ 17%</td></tr>
+                    <tr><td>Willow Bridge Property Company</td><td>Standard</td><td>598</td><td>2.6 days</td><td style="color:#e74c3c;">↓ 2%</td></tr>
+                    <tr><td>FPI Management</td><td>Standard</td><td>574</td><td>1.8 days</td><td style="color:#27ae60;">↑ 11%</td></tr>
+                    <tr><td>Kettler Management</td><td>Job Costing</td><td>541</td><td>2.9 days</td><td style="color:#27ae60;">↑ 5%</td></tr>
+                    <tr><td>Highmark Residential</td><td>Standard</td><td>518</td><td>1.4 days</td><td style="color:#27ae60;">↑ 16%</td></tr>
+                    <tr><td>RPM Living</td><td>Standard</td><td>492</td><td>2.1 days</td><td style="color:#27ae60;">↑ 8%</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Advanced KPI Metrics Over Time</div>
+            <div class="chart-container"><canvas id="invoiceKpiChart"></canvas></div>
+        </div>
+
+        <div class="two-column-grid">
+            <div class="chart-section">
+                <div class="chart-title">Early Pay Discount Performance</div>
+                <div class="chart-container"><canvas id="discountCaptureChart"></canvas></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-title">PO-to-Invoice Cycle Time Breakdown</div>
+                <div class="chart-container"><canvas id="cycleTimeChart"></canvas></div>
+            </div>
+        </div>
+
+        <div style="background: #fff8e1; border: 2px solid #ffcc5c; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="font-size: 1rem; font-weight: 700; color: #f39c12; margin-bottom: 0.75rem;">⚠️ Metrics Requiring Separate SQL Tasks</div>
+            <p style="font-size: 0.875rem; color: #7e8ba3; margin-bottom: 1rem;">The following metrics shown in this dashboard are <strong>not covered by the current invoice SQL task</strong> and require additional queries or dataset joins before they can be populated in Domo:</p>
+            <table style="width:100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead>
+                    <tr style="background: #fff3cd;">
+                        <th style="padding: 0.75rem; text-align: left; color: #f39c12; border-bottom: 1px solid #ffcc5c;">Metric</th>
+                        <th style="padding: 0.75rem; text-align: left; color: #f39c12; border-bottom: 1px solid #ffcc5c;">Why It Needs a Separate Task</th>
+                        <th style="padding: 0.75rem; text-align: left; color: #f39c12; border-bottom: 1px solid #ffcc5c;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 0.75rem; border-bottom: 1px solid #ffe082;">Early Pay Discount Capture</td>
+                        <td style="padding: 0.75rem; border-bottom: 1px solid #ffe082;">Requires JOIN with payment/discount tables — not in current invoice dataset</td>
+                        <td style="padding: 0.75rem; border-bottom: 1px solid #ffe082; color: #e67e22;">⏳ Separate task needed</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border-bottom: 1px solid #ffe082;">PO-to-Invoice Cycle Time</td>
+                        <td style="padding: 0.75rem; border-bottom: 1px solid #ffe082;">Requires JOIN between PO approval date and Invoice posted date across two tables</td>
+                        <td style="padding: 0.75rem; border-bottom: 1px solid #ffe082; color: #e67e22;">⏳ Separate task needed</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem;">User Penetration Rate</td>
+                        <td style="padding: 0.75rem;">Requires licensed user count as denominator — not in current invoice dataset</td>
+                        <td style="padding: 0.75rem; color: #e67e22;">⏳ Separate task needed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#2c3e50';
+
+        new Chart(document.getElementById('invoiceVolumeChart'), {
+            type: 'line',
+            data: { labels: ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'], datasets: [{ label: 'Invoices Created', data: [16840,18250,19180,20540,21450,22120,22980,23850,24512], borderColor: '#764ba2', backgroundColor: 'rgba(118,75,162,0.1)', tension: 0.4, fill: true, pointRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } } }
+        });
+
+        new Chart(document.getElementById('invoiceSourceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Add Invoice (Manual)','Bulk Invoice Entry','ELI Invoice Entry','Invoice Processing','Invoice Import','From PO','Dashboard Shortcut','Vendor Portal','Invoice Template','Recurring','Duplicate/Use Previous','API','UEM','Other'],
+                datasets: [{ data: [5200,4640,3800,2900,2400,2100,1800,1200,1100,980,720,620,380,672], backgroundColor: ['#667eea','#764ba2','#48c9b0','#f093fb','#27ae60','#f39c12','#e74c3c','#1abc9c','#e67e22','#9b59b6','#3498db','#e91e63','#607d8b','#bdc3c7'] }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } } }
+        });
+
+        new Chart(document.getElementById('invoiceStatusChart'), {
+            type: 'bar',
+            data: { labels: ['Pending','Rejected','Posted','Deleted'], datasets: [{ label: 'Invoice Count', data: [5892,2847,12420,634], backgroundColor: ['#ffcc5c','#ffa07a','#667eea','#bdc3c7'] }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+        });
+
+        new Chart(document.getElementById('invoiceApprovalChart'), {
+            type: 'bar',
+            data: { labels: ['< 1 day','1-3 days','3-7 days','> 7 days'], datasets: [{ label: 'Invoice Count', data: [8920,10840,3640,1112], backgroundColor: '#764ba2' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        new Chart(document.getElementById('invoiceEntryChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+                datasets: [
+                    { label: 'Add Invoice / Bulk Entry', data: [6800,7200,7600,8100,8500,8900,9200,9500,9840], backgroundColor: '#667eea' },
+                    { label: 'ELI Invoice Entry', data: [4200,4500,4700,5000,5300,5600,5800,6000,6200], backgroundColor: '#764ba2' },
+                    { label: 'Invoice Processing', data: [2400,2550,2700,2800,2850,2870,2880,2890,2900], backgroundColor: '#48c9b0' },
+                    { label: 'From PO / Dashboard Shortcut', data: [2200,2300,2400,2500,2600,2650,2700,2750,2800], backgroundColor: '#f093fb' },
+                    { label: 'Template / Recurring / Duplicate', data: [1800,1900,2000,2100,2200,2300,2400,2500,2600], backgroundColor: '#27ae60' },
+                    { label: 'Invoice Import', data: [1600,1700,1800,1900,2000,2100,2200,2300,2400], backgroundColor: '#f39c12' },
+                    { label: 'API / UEM / Vendor Portal', data: [1400,1500,1600,1700,1800,1850,1900,1950,2000], backgroundColor: '#e74c3c' },
+                    { label: 'Other', data: [540,550,580,600,620,640,650,660,672], backgroundColor: '#bdc3c7' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+        });
+
+        new Chart(document.getElementById('invoiceKpiChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+                datasets: [
+                    { label: 'First-Time-Right Rate (%)', data: [58,60,62,63,64,65,66,67.5,68.4], borderColor: '#27ae60', yAxisID: 'y', tension: 0.4 },
+                    { label: 'Rejection Rate (%)', data: [15.2,14.5,14.1,13.5,12.8,12.2,11.8,11.5,11.3], borderColor: '#e74c3c', yAxisID: 'y', tension: 0.4 },
+                    { label: 'PO-to-Invoice Cycle (days)', data: [6.8,6.5,6.2,5.9,5.7,5.5,5.4,5.3,5.2], borderColor: '#667eea', yAxisID: 'y1', tension: 0.4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { type: 'linear', position: 'left', title: { display: true, text: 'Percentage (%)' } }, y1: { type: 'linear', position: 'right', title: { display: true, text: 'Days' }, grid: { drawOnChartArea: false } } } }
+        });
+
+        new Chart(document.getElementById('discountCaptureChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+                datasets: [
+                    { label: 'Discount Captured ($K)', data: [78,84,89,95,102,108,114,119,124], backgroundColor: '#27ae60', yAxisID: 'y' },
+                    { label: 'Capture Rate (%)', data: [62,64,66,68,70,72,74,76,78], backgroundColor: '#667eea', yAxisID: 'y1', type: 'line', tension: 0.4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { type: 'linear', position: 'left', title: { display: true, text: 'Amount ($K)' } }, y1: { type: 'linear', position: 'right', title: { display: true, text: 'Capture Rate (%)' }, grid: { drawOnChartArea: false } } } }
+        });
+
+        new Chart(document.getElementById('cycleTimeChart'), {
+            type: 'bar',
+            data: { labels: ['< 3 days','3-7 days','7-14 days','> 14 days'], datasets: [{ label: 'Count', data: [5842,8247,4124,1299], backgroundColor: '#764ba2' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+</body>
+</html>

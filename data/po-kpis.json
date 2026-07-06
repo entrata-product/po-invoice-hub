@@ -1,0 +1,16 @@
+{
+  "_schema": "PO KPIs from DEV-231807. Populated by scripts/refresh_redshift.py --query po_core.",
+  "_status": "placeholder",
+  "window": "trailing_30_days",
+  "kpis": {
+    "total_pos_created": null,
+    "active_clients_using_pos": null,
+    "avg_days_to_approve": null,
+    "total_po_value_dollars": null,
+    "first_time_right_rate_pct": null,
+    "budget_compliance_rate_pct": null,
+    "rejection_reroute_rate_pct": null,
+    "user_penetration_rate_pct": null,
+    "pdf_attachment_rate_pct": null
+  }
+}

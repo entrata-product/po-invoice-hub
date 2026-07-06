@@ -1,0 +1,7 @@
+{
+  "_schema": "Merged NPS + Zendesk + Gong signals filtered to AP suite products (PO, Invoice, IPS, ELI).",
+  "_status": "placeholder",
+  "nps": [],
+  "zendesk_themes": [],
+  "gong_excerpts": []
+}

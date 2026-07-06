@@ -1,0 +1,8 @@
+{
+  "_schema": "Aggregated IPS correction patterns. Produced by aggregating csm-quick-wins skill outputs across active IPS clients.",
+  "_status": "placeholder",
+  "top_misconfigured_vendors": [],
+  "top_miscoded_gl_accounts": [],
+  "client_count_analyzed": null,
+  "estimated_monthly_hours_saved_if_fixed": null
+}

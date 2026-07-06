@@ -1,0 +1,6 @@
+{
+  "_schema": "Invoice source_channel mix. From invoice_core_dataset. 14 channels incl. ELI Invoice Entry (3), IPS (4).",
+  "_status": "placeholder",
+  "_provisional": true,
+  "sources": []
+}

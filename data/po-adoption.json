@@ -1,0 +1,6 @@
+{
+  "_schema": "PO adoption slice: client segment + release track. From po_core_dataset.",
+  "_status": "placeholder",
+  "by_segment": { "Enterprise": null, "Mid-Market": null, "Small": null },
+  "by_release_track": { "Rapid": null, "Standard": null }
+}

@@ -1,0 +1,6 @@
+{
+  "_schema": "Monthly invoice volume. Derived from invoice_core_dataset. GROUP BY creation_month.",
+  "_status": "placeholder",
+  "_provisional": true,
+  "months": []
+}
