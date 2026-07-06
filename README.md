@@ -1,4 +1,4 @@
-# Accounting Ops Hub
+# PO/Invoice Hub
 
 A single-view dashboard for the AP suite: **Purchase Orders, Invoices, Invoice Processing (IPS), and ELI Invoice Entry**.
 
@@ -37,7 +37,7 @@ Two views:
 ## Layout
 
 ```
-accounting-ops-hub/
+po-invoice-hub/
 ├── index.html                    # Six-tab dashboard, Focus/Advanced toggle
 ├── README.md                     # This file
 ├── REFRESH.md                    # Manual refresh instructions
@@ -63,7 +63,7 @@ accounting-ops-hub/
 
 ## Refresh
 
-See [`REFRESH.md`](./REFRESH.md) for the manual refresh procedure, or run the `refresh-accounting-hub` skill from the PM workspace.
+See [`REFRESH.md`](./REFRESH.md) for the manual refresh procedure, or run the `refresh-po-invoice-hub` skill from the PM workspace.
 
 ## Provenance
 

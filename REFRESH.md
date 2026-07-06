@@ -2,7 +2,7 @@
 
 Two ways to refresh:
 
-1. **PM workspace skill** — run `/refresh-accounting-hub` from the john-braithwaite-workspace. The skill orchestrates the whole thing and commits the JSON changes.
+1. **PM workspace skill** — run `/refresh-po-invoice-hub` from the john-braithwaite-workspace. The skill orchestrates the whole thing and commits the JSON changes.
 2. **Manual** — the steps below, run against a working Redshift connection and a Jira MCP with credentials.
 
 ## Prerequisites
@@ -37,7 +37,7 @@ Once resolved, mirror the PO commands with `--query invoice_*` and `data/invoice
 
 ```bash
 # From the PM workspace:
-cursor run /csm-quick-wins --aggregate --output accounting-ops-hub/data/ips-corrections.json
+cursor run /csm-quick-wins --aggregate --output po-invoice-hub/data/ips-corrections.json
 ```
 
 The `csm-quick-wins` skill runs client-specific IPS analysis; we roll up across active IPS clients here.
@@ -65,7 +65,7 @@ python3 -c "import json,datetime;json.dump({'last_refresh':datetime.datetime.utc
 ```bash
 git add data/
 git diff --cached --stat        # sanity: only data/*.json files change
-git commit -m "Refresh accounting-ops-hub data ($(date -u +%Y-%m-%d))"
+git commit -m "Refresh po-invoice-hub data ($(date -u +%Y-%m-%d))"
 git push origin main
 ```
 

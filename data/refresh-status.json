@@ -2,5 +2,5 @@
   "last_refresh": "2026-07-06T15:00:00Z",
   "triggered_by": "scaffold",
   "status": "scaffold_only",
-  "notes": "Initial scaffold. No live data wired yet. Run refresh-accounting-hub skill to populate."
+  "notes": "Initial scaffold. No live data wired yet. Run refresh-po-invoice-hub skill to populate."
 }

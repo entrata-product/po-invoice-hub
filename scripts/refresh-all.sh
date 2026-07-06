@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# refresh-all.sh — orchestrator for the accounting-ops-hub data refresh.
+# refresh-all.sh — orchestrator for the po-invoice-hub data refresh.
 #
 # Runs each data slice, updates the refresh-status timestamp, prints a diff summary.
 # Does NOT commit or push — the caller (skill or human) reviews the diff and pushes explicitly.
@@ -8,7 +8,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo "=== Accounting Ops Hub refresh ==="
+echo "=== PO/Invoice Hub refresh ==="
 echo ""
 
 echo "[1/5] PO metrics (production-ready)"
@@ -57,4 +57,4 @@ echo ""
 echo "=== Diff summary ==="
 git -C . diff --stat data/ || true
 echo ""
-echo "Review the diff, then: git add data/ && git commit -m 'Refresh accounting-ops-hub' && git push"
+echo "Review the diff, then: git add data/ && git commit -m 'Refresh po-invoice-hub' && git push"
