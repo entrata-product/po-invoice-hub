@@ -4,3 +4,8 @@ node_modules/
 .env.local
 *.log
 .tmp/
+
+# Local-only deep-dive data (contains property-level and per-user detail).
+# Copied from workspace knowledge/ folder for local rendering only.
+data/local/
+

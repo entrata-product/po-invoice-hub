@@ -707,7 +707,12 @@ Promise.all([
   loadData('roadmap', './data/roadmap.json'),
   loadData('poHealthMonthly', './data/po-health-monthly.json'),
   loadData('csTopClients', './data/cs-top-clients.json'),
+  loadData('csEpcDeepDive', './data/local/cs-epc-deep-dive.json'),
 ]).then(hydrate);
+
+const DEEP_DIVE_INDEX = {
+  15769: 'csEpcDeepDive',
+};
 
 function fmtNum(n) {
   if (n === null || n === undefined) return '—';
@@ -860,10 +865,16 @@ function hydrateCsClientsTable() {
   if (!d || !d.rankings) return;
   const rows = d.rankings.map(r => {
     const rateColor = r.rejection_rate_pct >= 15 ? '#ef4444' : r.rejection_rate_pct >= 10 ? '#f59e0b' : 'var(--ink)';
+    const hasDeepDive = !!DEEP_DIVE_INDEX[r.client_id] && !!state[DEEP_DIVE_INDEX[r.client_id]];
+    const badge = hasDeepDive
+      ? `<span style="display:inline-block;padding:1px 6px;background:rgba(56,132,255,0.15);color:#3884ff;border-radius:3px;font-size:10px;font-weight:600;margin-left:8px">View deep-dive \u2192</span>`
+      : '';
+    const rowStyle = hasDeepDive ? 'cursor:pointer' : '';
+    const rowAttrs = hasDeepDive ? `onclick="openDeepDive(${r.client_id})" class="cs-row-clickable"` : '';
     return `
-      <tr>
+      <tr ${rowAttrs} style="${rowStyle}">
         <td style="color:var(--subtle);text-align:center">${r.rank}</td>
-        <td><strong>${r.company_name}</strong><div style="font-size:11px;color:var(--subtle)">cid ${r.client_id}</div></td>
+        <td><strong>${r.company_name}</strong>${badge}<div style="font-size:11px;color:var(--subtle)">cid ${r.client_id}</div></td>
         <td style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.total_pos_12mo)}</td>
         <td style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.pos_with_any_rejection)}</td>
         <td style="text-align:right;font-variant-numeric:tabular-nums;color:${rateColor};font-weight:600">${fmtPct(r.rejection_rate_pct)}</td>
@@ -872,6 +883,130 @@ function hydrateCsClientsTable() {
     `;
   }).join('');
   tbody.innerHTML = rows;
+}
+
+function openDeepDive(clientId) {
+  const key = DEEP_DIVE_INDEX[clientId];
+  const d = key ? state[key] : null;
+  if (!d) return;
+  const drawer = document.getElementById('deep-dive-drawer');
+  const body = document.getElementById('deep-dive-body');
+  if (!drawer || !body) return;
+  const c = d.client || {};
+  const currentMonth = (d.monthly_trend || []).slice(-1)[0] || {};
+  const peakMonth = (d.monthly_trend || []).reduce((a, b) => (a.rejection_rate_pct > (b.rejection_rate_pct || 0) ? a : b), { rejection_rate_pct: 0 });
+  const topBucketsHtml = (d.derived_buckets || []).slice(0, 5).map(b => `
+    <div style="display:grid;grid-template-columns:1fr 60px 50px;gap:10px;padding:4px 0;font-size:12px;border-bottom:1px solid var(--line)">
+      <div>${b.bucket}</div>
+      <div style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(b.occurrences)}</div>
+      <div style="text-align:right;font-variant-numeric:tabular-nums;color:var(--subtle)">${b.share_of_rejections_pct}%</div>
+    </div>
+  `).join('');
+  const propRows = (d.by_property || []).map(p => {
+    const color = p.tier === 'critical' ? '#ef4444' : p.tier === 'elevated' ? '#f59e0b' : '#22c55e';
+    return `
+      <tr>
+        <td style="padding:4px 8px">${p.property_name}</td>
+        <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums">${fmtNum(p.pos_created)}</td>
+        <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums">${fmtNum(p.pos_rejected)}</td>
+        <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums;color:${color};font-weight:600">${p.rejection_rate_pct}%</td>
+      </tr>
+    `;
+  }).join('');
+  const vendorRows = (d.top_rejected_vendors || []).slice(0, 10).map(v => `
+    <tr>
+      <td style="padding:4px 8px">${v.company_name}</td>
+      <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums">${fmtNum(v.pos_rejected)}</td>
+      <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums;color:var(--subtle)">${v.rejection_rate_pct}%</td>
+    </tr>
+  `).join('');
+  const userRows = (d.top_rejecters || []).slice(0, 6).map(u => `
+    <tr>
+      <td style="padding:4px 8px">User ${u.user_id}</td>
+      <td style="padding:4px 8px;color:var(--subtle);font-size:11px">${u.title || '(no title)'}</td>
+      <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums">${fmtNum(u.reject_events)}</td>
+      <td style="text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums;color:var(--subtle)">${u.share_of_all_rejections_pct}%</td>
+    </tr>
+  `).join('');
+  body.innerHTML = `
+    <div style="padding:24px 28px;max-width:920px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+        <div>
+          <div style="font-size:12px;color:var(--subtle);margin-bottom:4px">CS Toolkit deep-dive</div>
+          <div style="font-size:22px;font-weight:700">${c.name}</div>
+          <div style="font-size:12px;color:var(--subtle);margin-top:4px">cid ${c.cid} \u00b7 ${d._run_ts ? new Date(d._run_ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</div>
+        </div>
+        <button onclick="closeDeepDive()" style="background:none;border:1px solid var(--line);border-radius:4px;padding:6px 12px;cursor:pointer;color:var(--ink)">Close</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+        <div style="padding:12px;background:var(--surface2);border-radius:6px">
+          <div style="font-size:11px;color:var(--subtle);margin-bottom:4px">12-month rate</div>
+          <div style="font-size:20px;font-weight:700;color:#ef4444">${c.aggregate_12mo_rejection_rate_pct}%</div>
+          <div style="font-size:11px;color:var(--subtle)">${fmtNum(c.aggregate_pos_rejected_12mo)} of ${fmtNum(c.aggregate_pos_created_12mo)} POs</div>
+        </div>
+        <div style="padding:12px;background:var(--surface2);border-radius:6px">
+          <div style="font-size:11px;color:var(--subtle);margin-bottom:4px">Peak month</div>
+          <div style="font-size:20px;font-weight:700;color:#ef4444">${peakMonth.rejection_rate_pct}%</div>
+          <div style="font-size:11px;color:var(--subtle)">${peakMonth.ym}</div>
+        </div>
+        <div style="padding:12px;background:rgba(34,197,94,0.1);border-radius:6px;border:1px solid #22c55e33">
+          <div style="font-size:11px;color:var(--subtle);margin-bottom:4px">Current month</div>
+          <div style="font-size:20px;font-weight:700;color:#22c55e">${currentMonth.rejection_rate_pct}%</div>
+          <div style="font-size:11px;color:var(--subtle)">${currentMonth.ym}${currentMonth._partial_month ? ' (partial)' : ''}</div>
+        </div>
+      </div>
+
+      ${d.trend_narrative ? `<div style="padding:12px 16px;background:rgba(56,132,255,0.08);border-left:3px solid #3884ff;border-radius:4px;margin-bottom:24px;font-size:13px;line-height:1.5">${d.trend_narrative}</div>` : ''}
+
+      <div style="margin-bottom:24px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:12px">Rejection reasons (derived from top-25 free-text notes)</div>
+        ${topBucketsHtml}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+        <div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:12px">By property</div>
+          <table style="width:100%;font-size:12px;border-collapse:collapse">
+            <thead><tr style="border-bottom:1px solid var(--line);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">Property</th><th style="text-align:right;padding:4px 8px">POs</th><th style="text-align:right;padding:4px 8px">Rej.</th><th style="text-align:right;padding:4px 8px">Rate</th></tr></thead>
+            <tbody>${propRows}</tbody>
+          </table>
+          ${d.property_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.property_narrative}</div>` : ''}
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:12px">Top rejected vendors</div>
+          <table style="width:100%;font-size:12px;border-collapse:collapse">
+            <thead><tr style="border-bottom:1px solid var(--line);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">Vendor</th><th style="text-align:right;padding:4px 8px">Rej.</th><th style="text-align:right;padding:4px 8px">Rate</th></tr></thead>
+            <tbody>${vendorRows}</tbody>
+          </table>
+          ${d.vendor_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.vendor_narrative}</div>` : ''}
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:12px">Top rejecters (user names not mirrored to Redshift; resolve in Entrata)</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse">
+          <thead><tr style="border-bottom:1px solid var(--line);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">User</th><th style="text-align:left;padding:4px 8px">Title</th><th style="text-align:right;padding:4px 8px">Events</th><th style="text-align:right;padding:4px 8px">Share</th></tr></thead>
+          <tbody>${userRows}</tbody>
+        </table>
+        ${d.rejecter_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.rejecter_narrative}</div>` : ''}
+      </div>
+
+      <div style="margin-top:24px;padding:12px 16px;background:var(--surface2);border-radius:6px;font-size:12px;color:var(--subtle);line-height:1.6">
+        <strong style="color:var(--ink)">Full CSM prep artifacts:</strong><br/>
+        \u2022 <code>knowledge/csm-quick-wins/epc-real-estate/client-wins-epc-2026-07-06.md</code> \u2014 CSM-facing talking points<br/>
+        \u2022 <code>knowledge/csm-quick-wins/epc-real-estate/product-ops-wins-epc-2026-07-06.md</code> \u2014 PM/product routing
+      </div>
+    </div>
+  `;
+  drawer.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDeepDive() {
+  const drawer = document.getElementById('deep-dive-drawer');
+  if (drawer) drawer.style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function hydrateRoadmap() {
@@ -1077,6 +1212,18 @@ document.querySelectorAll('#health-product-picker button').forEach(btn => {
     document.getElementById('health-' + btn.dataset.product).style.display = 'block';
   });
 });
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDeepDive();
+});
 </script>
+
+<div id="deep-dive-drawer" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto" onclick="if(event.target === this) closeDeepDive()">
+  <div id="deep-dive-body" style="background:var(--bg);min-height:100vh;width:100%;max-width:960px;box-shadow:0 0 40px rgba(0,0,0,0.2)"></div>
+</div>
+
+<style>
+.cs-row-clickable:hover { background: var(--hover); }
+</style>
 </body>
 </html>
