@@ -712,12 +712,14 @@ Promise.all([
   loadData('csEpcDeepDive', './data/local/cs-epc-deep-dive.json'),
   loadData('csRealtyLogisticsDeepDive', './data/local/cs-realty-logistics-deep-dive.json'),
   loadData('csIrtDeepDive', './data/local/cs-irt-deep-dive.json'),
+  loadData('cs200wWashingtonDeepDive', './data/local/cs-200w-washington-deep-dive.json'),
 ]).then(hydrate);
 
 const DEEP_DIVE_INDEX = {
   15769: 'csEpcDeepDive',
   10502: 'csRealtyLogisticsDeepDive',
   17541: 'csIrtDeepDive',
+  100353: 'cs200wWashingtonDeepDive',
 };
 
 function fmtNum(n) {
