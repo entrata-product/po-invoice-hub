@@ -103,9 +103,9 @@
       "pos_with_any_rejection": 1317,
       "total_rejection_events": 1553,
       "rejection_rate_pct": 11.8,
-      "cs_theme": "Recent onboarding \u2014 training gap likely",
+      "cs_theme": "NEW CBR pattern + volume drop \u2014 CSM investigate first",
       "pattern": "coaching-heavy",
-      "pattern_note": "515 of 552 classified rejections are coaching (93%). Top-3: 515 coaching + 18 duplicate + 9 turn_timing. Classifier hit rate 35.5% of 1553 total."
+      "pattern_note": "Deep-dive confirmed coaching-heavy but surfaces a NEW sub-pattern: CBR (Chargeback Recovery) \u2014 96 events (17% of classified). Also: VP + 2 PMs do 96% of rejections (VP alone at 46%). PO volume DOWN 52% year-over-year (Jul 2025 1,211 \u2192 Jun 2026 578) \u2014 CSM should investigate cause before framing product-value pitch. Property split: 5 properties at 15-26% rate, 5 properties at 0.1-3.5%. Deep-dive available."
     },
     {
       "rank": 8,
