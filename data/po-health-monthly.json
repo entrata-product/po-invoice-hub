@@ -1,0 +1,27 @@
+{
+  "_source": "entrata_entrata.ap_headers + ap_header_logs via Redshift MCP",
+  "_query": "queries/po-health-monthly.redshift.sql (derived)",
+  "_run_ts": "2026-07-06T16:50:00Z",
+  "_scope": "PO scope: ap_header_type_id=4, sub_type IN (4,11,19,20), non-template, created 13 months back. Log window 14 months to capture straddling events.",
+  "_notes": [
+    "Approval / FTR / touchless rates are remarkably stable — the AP suite performs consistently well month-over-month.",
+    "2026-07 is a partial month (7 days) — approved/touchless/ftr counts lag creations, so approval rate looks low. Do not compare July to full months.",
+    "Definition: touchless = approved AND zero edit events; FTR = approved AND zero rejection events; both computed on all created POs in that month."
+  ],
+  "months": [
+    { "ym": "2025-06", "po_count": 134162, "approved": 129849, "touchless": 108084, "ftr": 127670, "with_rejection": 3388, "approval_rate_pct": 96.8, "touchless_rate_pct": 80.6, "ftr_rate_pct": 95.2, "rejection_rate_pct": 2.5 },
+    { "ym": "2025-07", "po_count": 146360, "approved": 141708, "touchless": 118060, "ftr": 139020, "with_rejection": 4111, "approval_rate_pct": 96.8, "touchless_rate_pct": 80.7, "ftr_rate_pct": 95.0, "rejection_rate_pct": 2.8 },
+    { "ym": "2025-08", "po_count": 141587, "approved": 136911, "touchless": 114316, "ftr": 134396, "with_rejection": 3817, "approval_rate_pct": 96.7, "touchless_rate_pct": 80.7, "ftr_rate_pct": 94.9, "rejection_rate_pct": 2.7 },
+    { "ym": "2025-09", "po_count": 141971, "approved": 137336, "touchless": 114575, "ftr": 134804, "with_rejection": 4058, "approval_rate_pct": 96.7, "touchless_rate_pct": 80.7, "ftr_rate_pct": 95.0, "rejection_rate_pct": 2.9 },
+    { "ym": "2025-10", "po_count": 143859, "approved": 138660, "touchless": 115955, "ftr": 136087, "with_rejection": 4220, "approval_rate_pct": 96.4, "touchless_rate_pct": 80.6, "ftr_rate_pct": 94.6, "rejection_rate_pct": 2.9 },
+    { "ym": "2025-11", "po_count": 113946, "approved": 109340, "touchless": 92541, "ftr": 107423, "with_rejection": 3281, "approval_rate_pct": 96.0, "touchless_rate_pct": 81.2, "ftr_rate_pct": 94.3, "rejection_rate_pct": 2.9 },
+    { "ym": "2025-12", "po_count": 128549, "approved": 123775, "touchless": 104535, "ftr": 121601, "with_rejection": 3547, "approval_rate_pct": 96.3, "touchless_rate_pct": 81.3, "ftr_rate_pct": 94.6, "rejection_rate_pct": 2.8 },
+    { "ym": "2026-01", "po_count": 125214, "approved": 119268, "touchless": 98842, "ftr": 116379, "with_rejection": 4696, "approval_rate_pct": 95.3, "touchless_rate_pct": 79.0, "ftr_rate_pct": 92.9, "rejection_rate_pct": 3.8 },
+    { "ym": "2026-02", "po_count": 127947, "approved": 122279, "touchless": 101469, "ftr": 119631, "with_rejection": 4553, "approval_rate_pct": 95.6, "touchless_rate_pct": 79.3, "ftr_rate_pct": 93.5, "rejection_rate_pct": 3.6 },
+    { "ym": "2026-03", "po_count": 141674, "approved": 135975, "touchless": 113864, "ftr": 133367, "with_rejection": 4516, "approval_rate_pct": 96.0, "touchless_rate_pct": 80.4, "ftr_rate_pct": 94.1, "rejection_rate_pct": 3.2 },
+    { "ym": "2026-04", "po_count": 145476, "approved": 139396, "touchless": 116829, "ftr": 136786, "with_rejection": 4362, "approval_rate_pct": 95.8, "touchless_rate_pct": 80.3, "ftr_rate_pct": 94.0, "rejection_rate_pct": 3.0 },
+    { "ym": "2026-05", "po_count": 137667, "approved": 131799, "touchless": 111457, "ftr": 129454, "with_rejection": 3714, "approval_rate_pct": 95.7, "touchless_rate_pct": 81.0, "ftr_rate_pct": 94.0, "rejection_rate_pct": 2.7 },
+    { "ym": "2026-06", "po_count": 158237, "approved": 148356, "touchless": 127551, "ftr": 146265, "with_rejection": 3809, "approval_rate_pct": 93.8, "touchless_rate_pct": 80.6, "ftr_rate_pct": 92.4, "rejection_rate_pct": 2.4 },
+    { "ym": "2026-07", "po_count": 28853, "approved": 19388, "touchless": 18115, "ftr": 19326, "with_rejection": 426, "approval_rate_pct": 67.2, "touchless_rate_pct": 62.8, "ftr_rate_pct": 67.0, "rejection_rate_pct": 1.5, "_partial_month": true }
+  ]
+}

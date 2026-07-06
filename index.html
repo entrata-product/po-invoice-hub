@@ -535,19 +535,19 @@
   </div>
 
   <div id="health-po" class="health-product-view">
-    <div class="grid-4">
-      <div class="card"><div class="card-title">Total POs Created</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">Active Clients Using POs</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">Avg Approval Time</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">Total PO Value</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">First-Time-Right Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">Budget Compliance</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">Rejection/Reroute Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">User Penetration</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+    <div class="grid-4" id="health-po-kpis">
+      <div class="card" data-kpi="pos_created_30d"><div class="card-title">POs Created (30 days)</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="active_clients_30d"><div class="card-title">Active PO Clients (30 days)</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="pos_created_12mo"><div class="card-title">POs Created (12 mo)</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="gmv_30d"><div class="card-title">PO Value (30d, capped @$1M)</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="ftr"><div class="card-title">First-Time-Right Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="touchless"><div class="card-title">Touchless Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="rejection"><div class="card-title">Rejection / Rework Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card" data-kpi="clients_12mo"><div class="card-title">Clients Transacting (12 mo)</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
     </div>
     <div class="grid-2">
-      <div class="chart-card"><div class="card-title">PO Volume Trend (monthly)</div><div style="min-height:240px;display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px"><span class="placeholder-badge">po-monthly.json</span></div></div>
-      <div class="chart-card"><div class="card-title">Rejection Reasons (Top 5)</div><div style="min-height:240px;display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px"><span class="placeholder-badge">po-rejection-reasons.json</span></div></div>
+      <div class="chart-card"><div class="card-title">PO Health Trend — FTR / Touchless / Rejection %</div><div id="health-po-trend-slot" style="min-height:260px"><div style="display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px;height:240px"><span class="placeholder-badge">Loading…</span></div></div></div>
+      <div class="chart-card"><div class="card-title">Rejection Reasons — Top Free-Text Notes</div><div id="health-po-rejection-slot" style="min-height:260px"><div style="display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px;height:240px"><span class="placeholder-badge">Loading…</span></div></div></div>
     </div>
   </div>
 
@@ -618,12 +618,10 @@
 <!-- ============================================================================ -->
 <div class="tab-content" id="tab-roadmap">
   <div class="section-title">Roadmap — what's shipping</div>
-  <p class="section-subtitle">Live pull from Jira: epics on PXF - Invoices component (and adjacent AP components), grouped by release cadence. Same pattern as vendor-hub's roadmap tab.</p>
+  <p class="section-subtitle" id="roadmap-subtitle">Live pull from Jira: active epics on PXF - Invoices + PXF - Invoice Processing (ELI Invoice Entry is a sub-theme of IPS). Grouped by release cadence parsed from epic summary.</p>
 
-  <div class="placeholder-card">
-    <div class="card-title">Roadmap columns (R2/R3/R4 2026 + future)</div>
-    <div class="card-desc">Wired from scripts/fetch_jira_roadmap.mjs. JQL: <code>component = "PXF - Invoices" AND issuetype = Epic AND status in ("In Dev","Backlog","Ready for Dev")</code>. Adjacent components (ELI, IPS) added once JQL is confirmed.</div>
-    <span class="placeholder-badge">Pending data wiring</span>
+  <div id="roadmap-columns-container" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;margin-top:16px">
+    <div style="color:var(--subtle);font-size:13px;padding:20px">Loading roadmap…</div>
   </div>
 </div>
 
@@ -657,24 +655,22 @@
     </div>
   </div>
 
-  <div class="section-title" style="margin-top:32px">Client index</div>
-  <p class="section-subtitle">One row per active client with AP activity in the last 30 days. Sort/filter to find candidates for a quick-win outreach.</p>
+  <div class="section-title" style="margin-top:32px">Top rejection concentration — CSM outreach targets</div>
+  <p class="section-subtitle">Live clients with 500+ POs in the last 12 months, ranked by rejection rate. Top of table = highest CSM leverage per outreach hour.</p>
   <div class="table-surface">
     <table>
       <thead>
         <tr>
+          <th style="width:36px">#</th>
           <th>Client</th>
-          <th>Segment</th>
-          <th>Track</th>
-          <th style="text-align:right">POs (30d)</th>
-          <th style="text-align:right">Invoices (30d)</th>
-          <th style="text-align:right">FTR %</th>
-          <th style="text-align:right">Quick-win score</th>
-          <th></th>
+          <th style="text-align:right">POs (12 mo)</th>
+          <th style="text-align:right">Rejected</th>
+          <th style="text-align:right">Rejection %</th>
+          <th>CS theme</th>
         </tr>
       </thead>
       <tbody id="cs-clients-tbody">
-        <tr><td colspan="8" style="text-align:center;color:var(--subtle);padding:24px">Wire from ap-client-index.json (derived from po-core-dataset + invoice-core-dataset)</td></tr>
+        <tr><td colspan="6" style="text-align:center;color:var(--subtle);padding:24px">Loading top-rejection clients…</td></tr>
       </tbody>
     </table>
   </div>
@@ -709,6 +705,8 @@ Promise.all([
   loadData('ipsCorrections', './data/ips-corrections.json'),
   loadData('clientVoice', './data/client-voice.json'),
   loadData('roadmap', './data/roadmap.json'),
+  loadData('poHealthMonthly', './data/po-health-monthly.json'),
+  loadData('csTopClients', './data/cs-top-clients.json'),
 ]).then(hydrate);
 
 function fmtNum(n) {
@@ -754,6 +752,177 @@ function hydrate() {
   hydratePoRow();
   hydrateAdoption();
   hydratePoMonthlyChart();
+  hydrateHealthPoKpis();
+  hydrateHealthPoTrend();
+  hydrateRejectionReasons();
+  hydrateCsClientsTable();
+  hydrateRoadmap();
+}
+
+function setKpiCard(root, kpi, value) {
+  const card = root.querySelector(`[data-kpi="${kpi}"]`);
+  if (!card) return;
+  const v = card.querySelector('.stat-value');
+  if (!v) return;
+  v.textContent = value;
+  v.classList.remove('pending');
+}
+
+function hydrateHealthPoKpis() {
+  const root = document.getElementById('health-po-kpis');
+  if (!root) return;
+  const k = state.poKpis, h = state.poHealth, m = state.poHealthMonthly;
+  if (k && k.window_30d) setKpiCard(root, 'pos_created_30d', fmtNum(k.window_30d.pos_created));
+  if (k && k.totals) setKpiCard(root, 'active_clients_30d', fmtNum(k.totals.clients_transacting_last_30d));
+  if (m && m.months) {
+    const full = m.months.filter(x => !x._partial_month);
+    const total12 = full.slice(-12).reduce((a, x) => a + x.po_count, 0);
+    setKpiCard(root, 'pos_created_12mo', fmtNum(total12));
+  }
+  if (k && k.window_30d) setKpiCard(root, 'gmv_30d', fmtUsd(k.window_30d.gmv_capped_usd));
+  if (h && h.rates_pct) setKpiCard(root, 'ftr', fmtPct(h.rates_pct.first_time_right_rate));
+  if (h && h.rates_pct) setKpiCard(root, 'touchless', fmtPct(h.rates_pct.touchless_rate));
+  if (h && h.rates_pct) setKpiCard(root, 'rejection', fmtPct(h.rates_pct.rejection_or_return_rate));
+  if (k && k.totals) setKpiCard(root, 'clients_12mo', fmtNum(k.totals.clients_transacting_last_12mo || k.totals.clients_transacting_last_30d));
+}
+
+function hydrateHealthPoTrend() {
+  const slot = document.getElementById('health-po-trend-slot');
+  if (!slot) return;
+  const m = state.poHealthMonthly;
+  if (!m || !m.months) return;
+  slot.innerHTML = '<canvas id="health-po-trend-chart" style="max-height:260px"></canvas>';
+  const ctx = document.getElementById('health-po-trend-chart');
+  if (!ctx || typeof Chart === 'undefined') return;
+  const full = m.months.filter(x => !x._partial_month);
+  const labels = full.map(x => x.ym);
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'FTR %', data: full.map(x => x.ftr_rate_pct), borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', tension: 0.3, pointRadius: 2 },
+        { label: 'Touchless %', data: full.map(x => x.touchless_rate_pct), borderColor: '#3884ff', backgroundColor: 'rgba(56,132,255,0.1)', tension: 0.3, pointRadius: 2 },
+        { label: 'Rejection %', data: full.map(x => x.rejection_rate_pct), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', tension: 0.3, pointRadius: 2, yAxisID: 'y1' },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: { position: 'left', min: 70, max: 100, ticks: { callback: v => v + '%' } },
+        y1: { position: 'right', min: 0, max: 8, grid: { drawOnChartArea: false }, ticks: { callback: v => v + '%' } },
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.raw.toFixed(1) + '%' } },
+      },
+    },
+  });
+}
+
+function hydrateRejectionReasons() {
+  const slot = document.getElementById('health-po-rejection-slot');
+  if (!slot) return;
+  const r = state.poRejectionReasons;
+  if (!r || !r.derived_buckets) return;
+  const total = r.derived_buckets.reduce((a, b) => a + b.occurrences, 0);
+  const rows = r.derived_buckets
+    .sort((a, b) => b.occurrences - a.occurrences)
+    .map(b => {
+      const pct = total ? (100 * b.occurrences / total) : 0;
+      return `
+        <div style="display:grid;grid-template-columns:170px 1fr 60px;gap:12px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px">
+          <div style="font-weight:600">${b.bucket}</div>
+          <div style="background:var(--surface2);border-radius:4px;height:8px;position:relative;overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;background:var(--danger,#ef4444);width:${Math.min(100, pct)}%"></div>
+          </div>
+          <div style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(b.occurrences)}</div>
+        </div>
+      `;
+    }).join('');
+  slot.innerHTML = `
+    <div style="width:100%;padding:4px 4px 6px">
+      <div style="font-size:11px;color:var(--subtle);margin-bottom:8px">Derived from top-20 free-text notes, last 12mo (${fmtNum(total)} classified rejections)</div>
+      ${rows}
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--subtle);font-size:11px;line-height:1.5">
+        Pallavi's ILIKE keyword categorization put 80.8% of ~48k rejections in "OTHER".
+        The derived buckets above come from the actual dominant free-text notes and expose the real recovery opportunities.
+      </div>
+    </div>
+  `;
+}
+
+function hydrateCsClientsTable() {
+  const tbody = document.getElementById('cs-clients-tbody');
+  if (!tbody) return;
+  const d = state.csTopClients;
+  if (!d || !d.rankings) return;
+  const rows = d.rankings.map(r => {
+    const rateColor = r.rejection_rate_pct >= 15 ? '#ef4444' : r.rejection_rate_pct >= 10 ? '#f59e0b' : 'var(--ink)';
+    return `
+      <tr>
+        <td style="color:var(--subtle);text-align:center">${r.rank}</td>
+        <td><strong>${r.company_name}</strong><div style="font-size:11px;color:var(--subtle)">cid ${r.client_id}</div></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.total_pos_12mo)}</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.pos_with_any_rejection)}</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;color:${rateColor};font-weight:600">${fmtPct(r.rejection_rate_pct)}</td>
+        <td style="font-size:12px;color:var(--subtle)">${r.cs_theme}</td>
+      </tr>
+    `;
+  }).join('');
+  tbody.innerHTML = rows;
+}
+
+function hydrateRoadmap() {
+  const container = document.getElementById('roadmap-columns-container');
+  if (!container) return;
+  const r = state.roadmap;
+  if (!r || !r.columns) return;
+  const sub = document.getElementById('roadmap-subtitle');
+  if (sub && r.totals) {
+    sub.textContent = `Live pull from Jira: ${r.totals.total_active_epics} active epics — ${r.totals.pxf_invoices} on PXF-Invoices, ${r.totals.pxf_invoice_processing} on PXF-Invoice Processing (includes ELI Invoice Entry). Grouped by release cadence parsed from epic summary.`;
+  }
+  // Order the columns to put current/near-future first; hide obviously wrong old ones (R4 2024, R1 2026) unless they have content
+  const visibleColumns = r.columns.filter(c => {
+    if (c.release === 'Unspecified' && c.epic_count === 0) return false;
+    return true;
+  });
+  const priorityBadge = (p) => {
+    const color = p === 'P0' ? '#ef4444' : p === 'P1' ? '#f59e0b' : '#94a3b8';
+    return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px;font-weight:600">${p}</span>`;
+  };
+  const statusBadge = (s) => {
+    const color = /In Dev/.test(s) ? '#22c55e' : /Refinement|Waiting for Sprint/.test(s) ? '#3884ff' : /Waiting on Breakdown|In Breakdown/.test(s) ? '#f59e0b' : '#94a3b8';
+    return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px">${s}</span>`;
+  };
+  const compBadge = (c) => {
+    const color = c === 'PO / Invoices' ? '#8b5cf6' : '#0ea5e9';
+    return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px">${c}</span>`;
+  };
+  container.innerHTML = visibleColumns.map(col => {
+    const epicsHtml = col.epics.map(e => `
+      <div style="padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);margin-bottom:8px">
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <a href="${e.url}" target="_blank" style="font-weight:600;font-size:12px;color:var(--accent);text-decoration:none">${e.key}</a>
+          ${priorityBadge(e.priority)}
+          ${statusBadge(e.status)}
+        </div>
+        <div style="font-size:13px;line-height:1.35;margin-bottom:6px">${e.summary}</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          ${compBadge(e.component)}
+          <span style="font-size:11px;color:var(--subtle)">${e.assignee}</span>
+        </div>
+      </div>
+    `).join('');
+    return `
+      <div style="min-width:320px;max-width:320px;background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">${col.release}</div>
+        <div style="color:var(--subtle);font-size:11px;margin-bottom:12px">${col.epic_count} ${col.epic_count === 1 ? 'epic' : 'epics'}</div>
+        ${epicsHtml}
+      </div>
+    `;
+  }).join('');
 }
 
 function hydrateFocusStrip() {

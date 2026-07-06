@@ -1,11 +1,49 @@
 {
-  "_schema": "Top rejection reasons and category distribution from po_core_dataset. GROUP BY rejection_category, then top-N approval_note. Populated by the first_rejection CTE in queries/po-core-dataset.redshift.sql.",
-  "_status": "not_run_yet",
+  "_source": "entrata_entrata.ap_headers + ap_header_logs via Redshift MCP",
+  "_query": "queries/po-rejection-reasons.redshift.sql (derived)",
+  "_run_ts": "2026-07-06T16:50:00Z",
+  "_scope": "First rejection event per PO, ap_header_type_id=4, headers created last 12 months, log window last 13 months to capture straddling events.",
   "_notes": [
-    "Deferred from V1 first-pass because the first_rejection CTE requires ROW_NUMBER over ~29M PO log rows and needs a tight date window to complete inside the MCP query timeout. Next refresh should include it, scoped to log_datetime >= NOW() - INTERVAL '12 months'.",
-    "Headline rejection COUNT is already live via po-health.json (48,259 POs with any rejection over the last 12 months, ~2.9% rate). This file is the deeper breakdown (reason category + top literal notes)."
+    "Categorization uses Pallavi's original ILIKE keyword buckets. 81% of rejections fall into OTHER — the ILIKE keywords don't cover the real free-text notes. See top_literal_notes below for the actual dominant reasons.",
+    "Total categorized rejections: 48,259 first-rejection events across 12 months (~4,022/mo)."
   ],
-  "as_of": null,
-  "window": "last_12_months",
-  "categories": []
+  "by_category": [
+    { "rejection_category": "OTHER", "po_count": 38973, "share_pct": 80.8 },
+    { "rejection_category": "DATA_CORRECTION", "po_count": 5612, "share_pct": 11.6 },
+    { "rejection_category": "BUSINESS_REJECTION", "po_count": 3416, "share_pct": 7.1 },
+    { "rejection_category": "NO_REASON_GIVEN", "po_count": 257, "share_pct": 0.5 },
+    { "rejection_category": "ROUTING_ERROR", "po_count": 1, "share_pct": 0.0 }
+  ],
+  "top_literal_notes": [
+    { "note": "duplicate", "occurrences": 1478, "bucket": "Duplicate PO" },
+    { "note": "n/a", "occurrences": 486, "bucket": "No context" },
+    { "note": "not needed", "occurrences": 367, "bucket": "PO cancelled / not needed" },
+    { "note": "reject", "occurrences": 279, "bucket": "No context" },
+    { "note": "missing capex form", "occurrences": 241, "bucket": "Missing supporting docs" },
+    { "note": "wrong gl", "occurrences": 224, "bucket": "GL coding error" },
+    { "note": "duplicate po", "occurrences": 221, "bucket": "Duplicate PO" },
+    { "note": "duplicates", "occurrences": 215, "bucket": "Duplicate PO" },
+    { "note": "po not needed", "occurrences": 204, "bucket": "PO cancelled / not needed" },
+    { "note": "pls attach support documentation. thanks", "occurrences": 175, "bucket": "Missing supporting docs" },
+    { "note": "need unit number", "occurrences": 159, "bucket": "Missing property/unit" },
+    { "note": "rejected", "occurrences": 148, "bucket": "No context" },
+    { "note": "missing unit #", "occurrences": 130, "bucket": "Missing property/unit" },
+    { "note": "missing unit number", "occurrences": 127, "bucket": "Missing property/unit" },
+    { "note": "double", "occurrences": 121, "bucket": "Duplicate PO" },
+    { "note": "no longer manage", "occurrences": 118, "bucket": "Property changed hands" },
+    { "note": "conversion", "occurrences": 114, "bucket": "Migration artifact" },
+    { "note": "attach receipt", "occurrences": 111, "bucket": "Missing supporting docs" },
+    { "note": "correct gl", "occurrences": 104, "bucket": "GL coding error" },
+    { "note": "community sold", "occurrences": 101, "bucket": "Property changed hands" }
+  ],
+  "derived_buckets": [
+    { "bucket": "Duplicate PO", "occurrences": 2035, "note_variants": ["duplicate", "duplicate po", "duplicates", "double"] },
+    { "bucket": "PO cancelled / not needed", "occurrences": 571, "note_variants": ["not needed", "po not needed"] },
+    { "bucket": "Missing supporting docs", "occurrences": 527, "note_variants": ["missing capex form", "pls attach support documentation. thanks", "attach receipt"] },
+    { "bucket": "No context", "occurrences": 913, "note_variants": ["n/a", "reject", "rejected"] },
+    { "bucket": "Missing property/unit", "occurrences": 416, "note_variants": ["need unit number", "missing unit #", "missing unit number"] },
+    { "bucket": "GL coding error", "occurrences": 328, "note_variants": ["wrong gl", "correct gl"] },
+    { "bucket": "Property changed hands", "occurrences": 219, "note_variants": ["no longer manage", "community sold"] },
+    { "bucket": "Migration artifact", "occurrences": 114, "note_variants": ["conversion"] }
+  ]
 }

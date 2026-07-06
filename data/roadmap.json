@@ -1,6 +1,908 @@
 {
-  "_schema": "Jira epics on AP suite components. Produced by scripts/fetch_jira_roadmap.mjs.",
-  "_status": "placeholder",
-  "epics": [],
-  "columns_by_release": {}
+  "_source": "Jira MCP: PXF - Invoices + PXF - Invoice Processing components, status != Done",
+  "_query": "project = DEV AND component in (\"PXF - Invoices\", \"PXF - Invoice Processing\") AND issuetype = Epic AND statusCategory != Done",
+  "_run_ts": "2026-07-06T16:56:31Z",
+  "_notes": [
+    "Pulled 76 active epics across two components.",
+    "Release cadence parsed from epic summary (e.g., 'R3 2026', 'R2 2027'). Epics without a release tag land in 'Unspecified'.",
+    "Sort order within each release: priority ascending (P0 first), then status (In Dev/Refinement first).",
+    "ELI Invoice Entry is treated as a sub-theme of IPS (its epics carry the PXF - Invoice Processing component)."
+  ],
+  "totals": {
+    "total_active_epics": 76,
+    "pxf_invoices": 50,
+    "pxf_invoice_processing": 26
+  },
+  "columns": [
+    {
+      "release": "Unspecified",
+      "epic_count": 27,
+      "epics": [
+        {
+          "key": "DEV-294372",
+          "url": "https://entrata.atlassian.net/browse/DEV-294372",
+          "summary_full": "L3 (Agent) - Three-Way Match Reconciliation (in progress)",
+          "summary": "L3 (Agent) - Three-Way Match Reconciliation (in progress)",
+          "status": "Waiting on Breakdown",
+          "priority": "P1",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-134239",
+          "url": "https://entrata.atlassian.net/browse/DEV-134239",
+          "summary_full": "Invoice+ End to end testing and issue fixing",
+          "summary": "Invoice+ End to end testing and issue fixing",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-144598",
+          "url": "https://entrata.atlassian.net/browse/DEV-144598",
+          "summary_full": "Single AP transactions - Frontend development responsive design",
+          "summary": "Single AP transactions - Frontend development responsive design",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-144599",
+          "url": "https://entrata.atlassian.net/browse/DEV-144599",
+          "summary_full": "Single AP transactions - GURU documentation for Backend APIs",
+          "summary": "Single AP transactions - GURU documentation for Backend APIs",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-144601",
+          "url": "https://entrata.atlassian.net/browse/DEV-144601",
+          "summary_full": "Single AP transactions - GURU documentation for project",
+          "summary": "Single AP transactions - GURU documentation for project",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-145146",
+          "url": "https://entrata.atlassian.net/browse/DEV-145146",
+          "summary_full": "Single AP transactions - Backend API development",
+          "summary": "Single AP transactions - Backend API development",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-145154",
+          "url": "https://entrata.atlassian.net/browse/DEV-145154",
+          "summary_full": "Single AP transactions - Frontend Backend integration testing and bug fixing",
+          "summary": "Single AP transactions - Frontend Backend integration testing and bug fixing",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-83732",
+          "url": "https://entrata.atlassian.net/browse/DEV-83732",
+          "summary_full": "Invoice diagnostics",
+          "summary": "Invoice diagnostics",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-225654",
+          "url": "https://entrata.atlassian.net/browse/DEV-225654",
+          "summary_full": "Invoice : Approve & Next Functionality (Dashboard) (HOT FIX)",
+          "summary": "Invoice : Approve & Next Functionality (Dashboard)",
+          "status": "In Dev",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-298631",
+          "url": "https://entrata.atlassian.net/browse/DEV-298631",
+          "summary_full": "PO Bill To / Ship To & Print Layout Enhancements (HOT FIX)",
+          "summary": "PO Bill To / Ship To & Print Layout Enhancements",
+          "status": "In Dev",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-242113",
+          "url": "https://entrata.atlassian.net/browse/DEV-242113",
+          "summary_full": "AIF EPIC - Purchase Order Home",
+          "summary": "AIF EPIC - Purchase Order Home",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-243537",
+          "url": "https://entrata.atlassian.net/browse/DEV-243537",
+          "summary_full": "AIF EPIC - Substitutions / SKU mismatch override to allow PO closure with confirmation + vendor-level configuration",
+          "summary": "AIF EPIC - Substitutions / SKU mismatch override to allow PO closure with confirmation + vendor-level configuration",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-243539",
+          "url": "https://entrata.atlassian.net/browse/DEV-243539",
+          "summary_full": "AIF EPIC - Research: Cross-team \u201cInvoice validation contract\u201d hardening (reduce surprise breaks for Vendor team)",
+          "summary": "AIF EPIC - Research: Cross-team \u201cInvoice validation contract\u201d hardening (reduce surprise breaks for Vendor team)",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-243744",
+          "url": "https://entrata.atlassian.net/browse/DEV-243744",
+          "summary_full": "AIF EPIC - PO/Invoice AND/OR Approval Route Options",
+          "summary": "AIF EPIC - PO/Invoice AND/OR Approval Route Options",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-243749",
+          "url": "https://entrata.atlassian.net/browse/DEV-243749",
+          "summary_full": "AIF EPIC - Upload Invoice Experience Overhaul",
+          "summary": "AIF EPIC - Upload Invoice Experience Overhaul",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-270464",
+          "url": "https://entrata.atlassian.net/browse/DEV-270464",
+          "summary_full": "SAPT - PO - Approved Purchase Order (Edit Screen)",
+          "summary": "SAPT - PO - Approved Purchase Order (Edit Screen)",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-270465",
+          "url": "https://entrata.atlassian.net/browse/DEV-270465",
+          "summary_full": "SAPT - PO -   Pending Purchase Order (Edit Screen)",
+          "summary": "SAPT - PO -   Pending Purchase Order (Edit Screen)",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-276238",
+          "url": "https://entrata.atlassian.net/browse/DEV-276238",
+          "summary_full": "SAPT Receiving Settings ",
+          "summary": "SAPT Receiving Settings",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-280082",
+          "url": "https://entrata.atlassian.net/browse/DEV-280082",
+          "summary_full": "SAPT PO Templates",
+          "summary": "SAPT PO Templates",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-291277",
+          "url": "https://entrata.atlassian.net/browse/DEV-291277",
+          "summary_full": "IPS Client-Facing Settings \u2014 Phase 3: Invoice Detection Rules",
+          "summary": "IPS Client-Facing Settings \u2014 Phase 3: Invoice Detection Rules",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-293233",
+          "url": "https://entrata.atlassian.net/browse/DEV-293233",
+          "summary_full": "[Invoices] Refund Invoice \u2014 Surface New Electronic Refund Methods",
+          "summary": "[Invoices] Refund Invoice \u2014 Surface New Electronic Refund Methods",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-306772",
+          "url": "https://entrata.atlassian.net/browse/DEV-306772",
+          "summary_full": "Vendor GL Default Agent \u2014 L2 AI agent to detect GL coding patterns and nudge vendor default updates",
+          "summary": "Vendor GL Default Agent \u2014 L2 AI agent to detect GL coding patterns and nudge vendor default updates",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-308190",
+          "url": "https://entrata.atlassian.net/browse/DEV-308190",
+          "summary_full": "Invoice Processing \u2014 Invoice + Image Retrieval API",
+          "summary": "Invoice Processing \u2014 Invoice + Image Retrieval API",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-225840",
+          "url": "https://entrata.atlassian.net/browse/DEV-225840",
+          "summary_full": "[Post-SAPT] PO User Customization and Preferences",
+          "summary": "[Post-SAPT] PO User Customization and Preferences",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Khushali Sanghvi",
+          "release": null,
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-296872",
+          "url": "https://entrata.atlassian.net/browse/DEV-296872",
+          "summary_full": "AP \u2014 PO / Invoice line-count mismatch override (Path C scaffold)",
+          "summary": "AP \u2014 PO / Invoice line-count mismatch override (Path C scaffold)",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Christopher Kunz",
+          "release": null,
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-304132",
+          "url": "https://entrata.atlassian.net/browse/DEV-304132",
+          "summary_full": "Transactional Fees Update to support Salesforce - R3 ",
+          "summary": "Transactional Fees Update to support Salesforce - R3",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Jerome Carrasco",
+          "release": null,
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-305177",
+          "url": "https://entrata.atlassian.net/browse/DEV-305177",
+          "summary_full": "AP Invoices - Family Driven Implementation",
+          "summary": "AP Invoices - Family Driven Implementation",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": null,
+          "component": "PO / Invoices"
+        }
+      ]
+    },
+    {
+      "release": "R4 2024",
+      "epic_count": 1,
+      "epics": [
+        {
+          "key": "DEV-298675",
+          "url": "https://entrata.atlassian.net/browse/DEV-298675",
+          "summary_full": "Invoice Workflow Safety \u2014 Integrity Guardrails (R4 2024)",
+          "summary": "Invoice Workflow Safety \u2014 Integrity Guardrails",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2024",
+          "component": "PO / Invoices"
+        }
+      ]
+    },
+    {
+      "release": "R1 2026",
+      "epic_count": 1,
+      "epics": [
+        {
+          "key": "DEV-244578",
+          "url": "https://entrata.atlassian.net/browse/DEV-244578",
+          "summary_full": "R1 2026 - Implement Amazon SES Solution for IP Emails",
+          "summary": "R1 2026 - Implement Amazon SES Solution for IP Emails",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R1 2026",
+          "component": "IPS / ELI"
+        }
+      ]
+    },
+    {
+      "release": "R3 2026",
+      "epic_count": 30,
+      "epics": [
+        {
+          "key": "DEV-231191",
+          "url": "https://entrata.atlassian.net/browse/DEV-231191",
+          "summary_full": "INTERNAL : Data Request: Metrics for Core AP KPIs (R3 2026)",
+          "summary": "INTERNAL : Data Request: Metrics for Core AP KPIs",
+          "status": "In Dev",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-273595",
+          "url": "https://entrata.atlassian.net/browse/DEV-273595",
+          "summary_full": "Enhancements to View Budget Link (R3 2026) MONTHLY ",
+          "summary": "Enhancements to View Budget Link (R3 2026) MONTHLY",
+          "status": "In Dev",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-289899",
+          "url": "https://entrata.atlassian.net/browse/DEV-289899",
+          "summary_full": "Client-Facing Invoice Processing Settings (R3 2026)",
+          "summary": "Client-Facing Invoice Processing Settings",
+          "status": "In Dev",
+          "priority": "P2",
+          "assignee": "Sanskruti Chakrawar",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-304101",
+          "url": "https://entrata.atlassian.net/browse/DEV-304101",
+          "summary_full": "Improve Visibility and Recovery for Long-Pending Invoice Documents(R3 2026)",
+          "summary": "Improve Visibility and Recovery for Long-Pending Invoice Documents",
+          "status": "In Dev",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-209835",
+          "url": "https://entrata.atlassian.net/browse/DEV-209835",
+          "summary_full": "Additional Route and Rule options (R3 2026)",
+          "summary": "Additional Route and Rule options",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-217925",
+          "url": "https://entrata.atlassian.net/browse/DEV-217925",
+          "summary_full": "In-house IP AI project development with SES and DocExtract integration  (R3 2026)",
+          "summary": "In-house IP AI project development with SES and DocExtract integration",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-247655",
+          "url": "https://entrata.atlassian.net/browse/DEV-247655",
+          "summary_full": "AIF - Customizable Columns for Dashboard > Approvals > Purchase Order (R3 2026)",
+          "summary": "AIF - Customizable Columns for Dashboard > Approvals > Purchase Order",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-247656",
+          "url": "https://entrata.atlassian.net/browse/DEV-247656",
+          "summary_full": "AIF- Customizable Columns for Dashboard > Approvals > Invoices (R3 2026)",
+          "summary": "AIF- Customizable Columns for Dashboard > Approvals > Invoices",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-249569",
+          "url": "https://entrata.atlassian.net/browse/DEV-249569",
+          "summary_full": "PO Reject & Return Updates with Reasons (R3 2026)",
+          "summary": "PO Reject & Return Updates with Reasons",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-273597",
+          "url": "https://entrata.atlassian.net/browse/DEV-273597",
+          "summary_full": "Enhancements to View Budget Link (R3 2026) FYTD",
+          "summary": "Enhancements to View Budget Link (R3 2026) FYTD",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-292267",
+          "url": "https://entrata.atlassian.net/browse/DEV-292267",
+          "summary_full": "IP Clients Screen: Take Ownership & Automate Property-Level API Enablement for Invoice Processing (R3 2026)",
+          "summary": "IP Clients Screen: Take Ownership & Automate Property-Level API Enablement for Invoice Processing",
+          "status": "Waiting for Sprint",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-155134",
+          "url": "https://entrata.atlassian.net/browse/DEV-155134",
+          "summary_full": "ELI Invoice Entry \u2014 Visibility, Ops, UX & Monitoring (R3 2026)",
+          "summary": "ELI Invoice Entry \u2014 Visibility, Ops, UX & Monitoring",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-209833",
+          "url": "https://entrata.atlassian.net/browse/DEV-209833",
+          "summary_full": "Reset Route Updates/Options (R3 2026)",
+          "summary": "Reset Route Updates/Options",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-249568",
+          "url": "https://entrata.atlassian.net/browse/DEV-249568",
+          "summary_full": "Invoice Reject & Return Updates with Reasons (R3 2026)",
+          "summary": "Invoice Reject & Return Updates with Reasons",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-252993",
+          "url": "https://entrata.atlassian.net/browse/DEV-252993",
+          "summary_full": "Internal Work \u2013 Invoice/PO (R3 2026)",
+          "summary": "Internal Work \u2013 Invoice/PO",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-267904",
+          "url": "https://entrata.atlassian.net/browse/DEV-267904",
+          "summary_full": "L2 (Agent) - Nudge Pending Approvals (R3 2026)",
+          "summary": "L2 (Agent) - Nudge Pending Approvals",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-273553",
+          "url": "https://entrata.atlassian.net/browse/DEV-273553",
+          "summary_full": " Updates to PO & Invoice Under/Over Budget Route Rules (FYTD Bucket Logic) (R3 2026)",
+          "summary": "Updates to PO & Invoice Under/Over Budget Route Rules (FYTD Bucket Logic)",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Vinod Jadhao",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-280250",
+          "url": "https://entrata.atlassian.net/browse/DEV-280250",
+          "summary_full": "Amazon SES \u2013 Invoice Processing -  Email Intake Dashboard \u2013 Status Standardization & Workflow Alignment (R3 2026)",
+          "summary": "Amazon SES \u2013 Invoice Processing -  Email Intake Dashboard \u2013 Status Standardization & Workflow Alignment",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-284556",
+          "url": "https://entrata.atlassian.net/browse/DEV-284556",
+          "summary_full": "L3 (Agent) - In-House Invoice Processing Extraction Engine (R3 2026)",
+          "summary": "L3 (Agent) - In-House Invoice Processing Extraction Engine",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Sharad Chougale",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-289906",
+          "url": "https://entrata.atlassian.net/browse/DEV-289906",
+          "summary_full": "Pixydocs Integration and AI Model Updates (R3 2026)",
+          "summary": "Pixydocs Integration and AI Model Updates",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-289907",
+          "url": "https://entrata.atlassian.net/browse/DEV-289907",
+          "summary_full": "Invoice Processing Client-Facing Features and History Logging (R3 2026)",
+          "summary": "Invoice Processing Client-Facing Features and History Logging",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-290959",
+          "url": "https://entrata.atlassian.net/browse/DEV-290959",
+          "summary_full": "Invoice Approval Dashnboard: Over-PO Amount Warning Custom Column (R3 2026)",
+          "summary": "Invoice Approval Dashnboard: Over-PO Amount Warning Custom Column",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-295845",
+          "url": "https://entrata.atlassian.net/browse/DEV-295845",
+          "summary_full": "L2 (Agent) - ELI OCR & PO Mapping Intelligence (R3 2026)",
+          "summary": "L2 (Agent) - ELI OCR & PO Mapping Intelligence",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-300163",
+          "url": "https://entrata.atlassian.net/browse/DEV-300163",
+          "summary_full": "Universal Over-PO Warning Banner & Approval Confirmation (R3 2026)",
+          "summary": "Universal Over-PO Warning Banner & Approval Confirmation",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-89701",
+          "url": "https://entrata.atlassian.net/browse/DEV-89701",
+          "summary_full": "Route Rule \u2014 Custom Column Option on Dashboard (R3 2026)",
+          "summary": "Route Rule \u2014 Custom Column Option on Dashboard",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-298529",
+          "url": "https://entrata.atlassian.net/browse/DEV-298529",
+          "summary_full": "In-house IP Invoice Processing & AI Prediction( R3 2026)",
+          "summary": "In-house IP Invoice Processing & AI Prediction(",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-298531",
+          "url": "https://entrata.atlassian.net/browse/DEV-298531",
+          "summary_full": "In-house IP Operations Workflow & Human Review( R3 2026)",
+          "summary": "In-house IP Operations Workflow & Human Review(",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-298533",
+          "url": "https://entrata.atlassian.net/browse/DEV-298533",
+          "summary_full": "In-house IP Administration, Access Control & Configuration( R3 2026)",
+          "summary": "In-house IP Administration, Access Control & Configuration(",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-298538",
+          "url": "https://entrata.atlassian.net/browse/DEV-298538",
+          "summary_full": "In-house IP Reporting, Analytics & Continuous Improvement( R3 2026)",
+          "summary": "In-house IP Reporting, Analytics & Continuous Improvement(",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-298544",
+          "url": "https://entrata.atlassian.net/browse/DEV-298544",
+          "summary_full": "In-house IP Database & Platform Foundation( R3 2026)",
+          "summary": "In-house IP Database & Platform Foundation(",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2026",
+          "component": "IPS / ELI"
+        }
+      ]
+    },
+    {
+      "release": "R4 2026",
+      "epic_count": 8,
+      "epics": [
+        {
+          "key": "DEV-267900",
+          "url": "https://entrata.atlassian.net/browse/DEV-267900",
+          "summary_full": "Edit > Save > Approve > Next (R4 2026)",
+          "summary": "Edit > Save > Approve > Next",
+          "status": "In Refinement",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-233985",
+          "url": "https://entrata.atlassian.net/browse/DEV-233985",
+          "summary_full": "IPS Code Refactor and Tech Debt (R4 2026)",
+          "summary": "IPS Code Refactor and Tech Debt",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-233990",
+          "url": "https://entrata.atlassian.net/browse/DEV-233990",
+          "summary_full": "General Unplanned Tasks (R4 2026)",
+          "summary": "General Unplanned Tasks",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-244965",
+          "url": "https://entrata.atlassian.net/browse/DEV-244965",
+          "summary_full": "AIF - Allow editing of rejected invoices before resubmission for approval (R4 2026)",
+          "summary": "AIF - Allow editing of rejected invoices before resubmission for approval",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-298678",
+          "url": "https://entrata.atlassian.net/browse/DEV-298678",
+          "summary_full": "PO Enhancements \u2014  Custom Tag Subtotal, Dashboard Filters, Import Validation (R4 2026)",
+          "summary": "PO Enhancements \u2014  Custom Tag Subtotal, Dashboard Filters, Import Validation",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-298680",
+          "url": "https://entrata.atlassian.net/browse/DEV-298680",
+          "summary_full": "Vendor Validation and Permission Filtering \u2014 Disabled Vendor Blocking, GL Restrictions, AP Touchpoints (R4 2026)",
+          "summary": "Vendor Validation and Permission Filtering \u2014 Disabled Vendor Blocking, GL Restrictions, AP Touchpoints",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-147809",
+          "url": "https://entrata.atlassian.net/browse/DEV-147809",
+          "summary_full": "Inv/Po - Internal Bugs - Part 2 (R4 2026)",
+          "summary": "Inv/Po - Internal Bugs - Part 2",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-298681",
+          "url": "https://entrata.atlassian.net/browse/DEV-298681",
+          "summary_full": "AP Internal \u2014 Flag Cleanup, Tech Debt, and Research (R4 2026)",
+          "summary": "AP Internal \u2014 Flag Cleanup, Tech Debt, and Research",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2026",
+          "component": "PO / Invoices"
+        }
+      ]
+    },
+    {
+      "release": "R1 2027",
+      "epic_count": 3,
+      "epics": [
+        {
+          "key": "DEV-188879",
+          "url": "https://entrata.atlassian.net/browse/DEV-188879",
+          "summary_full": "IPS Clients Dasboard (R1 2027)",
+          "summary": "IPS Clients Dasboard",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R1 2027",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-245722",
+          "url": "https://entrata.atlassian.net/browse/DEV-245722",
+          "summary_full": "Require POs by GL Accounts (R1 2027)",
+          "summary": "Require POs by GL Accounts",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R1 2027",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-291273",
+          "url": "https://entrata.atlassian.net/browse/DEV-291273",
+          "summary_full": "Invoice Processing -  Client-Facing Settings \u2014 Phase 2: PO Match Settings (R1 2027)",
+          "summary": "Invoice Processing -  Client-Facing Settings \u2014 Phase 2: PO Match Settings",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R1 2027",
+          "component": "IPS / ELI"
+        }
+      ]
+    },
+    {
+      "release": "R2 2027",
+      "epic_count": 4,
+      "epics": [
+        {
+          "key": "DEV-144600",
+          "url": "https://entrata.atlassian.net/browse/DEV-144600",
+          "summary_full": "Single AP transactions - PHPServices/NODEJS + REACTJS + additional tools environment setup (R2 2027)",
+          "summary": "Single AP transactions - PHPServices/NODEJS + REACTJS + additional tools environment setup",
+          "status": "New",
+          "priority": "P1",
+          "assignee": "Vinod Jadhao",
+          "release": "R2 2027",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-266929",
+          "url": "https://entrata.atlassian.net/browse/DEV-266929",
+          "summary_full": "L2 Agent -Invoice Processing -  AI Suggested Action Column on IPS Dashboard (R2 2027)",
+          "summary": "L2 Agent -Invoice Processing -  AI Suggested Action Column on IPS Dashboard",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R2 2027",
+          "component": "IPS / ELI"
+        },
+        {
+          "key": "DEV-279497",
+          "url": "https://entrata.atlassian.net/browse/DEV-279497",
+          "summary_full": "L2 (Agent) - SAPT Add Invoice OCR (in progress R2 2027)",
+          "summary": "L2 (Agent) - SAPT Add Invoice OCR (in progress",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R2 2027",
+          "component": "PO / Invoices"
+        },
+        {
+          "key": "DEV-82232",
+          "url": "https://entrata.atlassian.net/browse/DEV-82232",
+          "summary_full": "Inv/Po - Tech Debt - Refactor Invoices to service layer (R2 2027)",
+          "summary": "Inv/Po - Tech Debt - Refactor Invoices to service layer",
+          "status": "New",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R2 2027",
+          "component": "PO / Invoices"
+        }
+      ]
+    },
+    {
+      "release": "R3 2027",
+      "epic_count": 1,
+      "epics": [
+        {
+          "key": "DEV-183727",
+          "url": "https://entrata.atlassian.net/browse/DEV-183727",
+          "summary_full": "Updates to OOO Reliever Functionality (R3 2027)",
+          "summary": "Updates to OOO Reliever Functionality",
+          "status": "In Refinement",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R3 2027",
+          "component": "PO / Invoices"
+        }
+      ]
+    },
+    {
+      "release": "R4 2027",
+      "epic_count": 1,
+      "epics": [
+        {
+          "key": "DEV-298710",
+          "url": "https://entrata.atlassian.net/browse/DEV-298710",
+          "summary_full": "ELI & Bulk Entry \u2014 UX, Notifications & Tech Debt (R4 2027)",
+          "summary": "ELI & Bulk Entry \u2014 UX, Notifications & Tech Debt",
+          "status": "Waiting on Breakdown",
+          "priority": "P2",
+          "assignee": "Krystin Lacy-Betters",
+          "release": "R4 2027",
+          "component": "IPS / ELI"
+        }
+      ]
+    }
+  ]
 }
