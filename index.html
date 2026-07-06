@@ -697,6 +697,7 @@ async function loadData(key, path) {
 Promise.all([
   loadData('refresh', './data/refresh-status.json'),
   loadData('poKpis', './data/po-kpis.json'),
+  loadData('poHealth', './data/po-health.json'),
   loadData('invoiceKpis', './data/invoice-kpis.json'),
   loadData('poMonthly', './data/po-monthly.json'),
   loadData('invoiceMonthly', './data/invoice-monthly.json'),
@@ -710,8 +711,158 @@ Promise.all([
   loadData('roadmap', './data/roadmap.json'),
 ]).then(hydrate);
 
+function fmtNum(n) {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+  return n.toLocaleString();
+}
+function fmtUsd(n) {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'k';
+  return '$' + n.toLocaleString();
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '—';
+  return n.toFixed(1) + '%';
+}
+function setFocusKpi(strip, index, value, label) {
+  const kpi = strip.querySelectorAll('.focus-kpi')[index];
+  if (!kpi) return;
+  const v = kpi.querySelector('.focus-kpi-value');
+  v.textContent = value;
+  v.classList.remove('pending');
+  const l = kpi.querySelector('.focus-kpi-label');
+  if (label) l.textContent = label;
+}
+function setStatItem(strip, index, value, label) {
+  const item = strip.querySelectorAll('.stat-item')[index];
+  if (!item) return;
+  const v = item.querySelector('.stat-value');
+  v.textContent = value;
+  v.classList.remove('pending');
+  if (label) item.querySelector('.stat-label').textContent = label;
+}
+
 function hydrate() {
   updateRefreshDates();
+  hydrateFocusStrip();
+  hydrateAdvancedOverview();
+  hydratePoRow();
+  hydrateAdoption();
+  hydratePoMonthlyChart();
+}
+
+function hydrateFocusStrip() {
+  const strip = document.getElementById('focus-overview-strip');
+  if (!strip) return;
+  const k = state.poKpis;
+  const h = state.poHealth;
+  if (k && k.window_30d) setFocusKpi(strip, 0, fmtNum(k.window_30d.pos_created), 'POs Created (30d)');
+  setFocusKpi(strip, 1, '—', 'Invoices Created (30d)');
+  if (h && h.rates_pct) setFocusKpi(strip, 2, fmtPct(h.rates_pct.first_time_right_rate), 'First-Time-Right (PO, 12mo)');
+  setFocusKpi(strip, 3, '—', 'Touchless Invoices');
+  if (h && h.rates_pct) setFocusKpi(strip, 4, fmtPct(h.rates_pct.touchless_rate), 'Touchless (PO, 12mo)');
+  if (k && k.totals) setFocusKpi(strip, 5, fmtNum(k.totals.clients_transacting_last_30d), 'Active PO Clients (30d)');
+}
+
+function hydrateAdvancedOverview() {
+  const strip = document.getElementById('overview-kpis');
+  if (!strip) return;
+  const k = state.poKpis;
+  const h = state.poHealth;
+  if (k && k.window_30d) setStatItem(strip, 0, fmtNum(k.window_30d.pos_created), 'POs Created (30d)');
+  setStatItem(strip, 1, '—', 'Invoices Created (30d)');
+  if (k && k.totals) setStatItem(strip, 2, fmtNum(k.totals.clients_transacting_last_30d), 'Active PO Clients (30d)');
+  setStatItem(strip, 3, '—', 'Avg Days to Approve');
+  if (h && h.rates_pct) setStatItem(strip, 4, fmtPct(h.rates_pct.first_time_right_rate), 'First-Time-Right (12mo)');
+  if (k && k.window_30d) setStatItem(strip, 5, fmtUsd(k.window_30d.gmv_capped_usd), 'PO Value (30d, capped)');
+}
+
+function hydratePoRow() {
+  const tbody = document.getElementById('overview-products-tbody');
+  if (!tbody) return;
+  const k = state.poKpis;
+  const h = state.poHealth;
+  if (!k || !h) return;
+  const poRow = tbody.querySelector('tr:first-child');
+  if (!poRow) return;
+  poRow.innerHTML = `
+    <td><strong>Purchase Orders</strong></td>
+    <td style="text-align:right">${fmtNum(k.totals && k.totals.clients_transacting_last_30d)}</td>
+    <td style="text-align:right">${fmtNum(k.window_30d && k.window_30d.pos_created)}</td>
+    <td style="text-align:right;color:var(--subtle)">—</td>
+    <td style="text-align:right">${fmtPct(h.rates_pct && h.rates_pct.first_time_right_rate)}</td>
+    <td style="text-align:right">${fmtPct(h.rates_pct && h.rates_pct.rejection_or_return_rate)}</td>
+    <td><span class="status-badge s-good">Live</span></td>
+  `;
+}
+
+function hydrateAdoption() {
+  const k = state.poAdoption;
+  if (!k || !k.by_segment) return;
+  const container = document.querySelector('#tab-adoption .grid-2 .card:first-child');
+  if (!container) return;
+  const inner = container.querySelector('div[style*="min-height"]');
+  if (!inner) return;
+  const rows = k.by_segment
+    .filter(s => s.segment !== 'Unknown')
+    .map(s => `
+      <div style="display:grid;grid-template-columns:120px 1fr 60px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)">
+        <div><strong>${s.segment}</strong></div>
+        <div style="background:var(--surface2);border-radius:4px;height:8px;position:relative;overflow:hidden">
+          <div style="position:absolute;left:0;top:0;bottom:0;background:var(--accent);width:${Math.min(100, s.adoption_pct)}%"></div>
+        </div>
+        <div style="text-align:right;font-variant-numeric:tabular-nums">${s.transacting_12mo}/${s.live_clients}</div>
+      </div>
+    `).join('');
+  const portfolioRow = k.portfolio_totals
+    ? `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--line);color:var(--subtle);font-size:12px">Portfolio: ${k.portfolio_totals.transacting_12mo}/${k.portfolio_totals.live_clients} clients transacting last 12 months (${k.portfolio_totals.overall_adoption_pct}%)</div>`
+    : '';
+  inner.outerHTML = `<div style="width:100%;padding:4px 0">${rows}${portfolioRow}</div>`;
+}
+
+function hydratePoMonthlyChart() {
+  const m = state.poMonthly;
+  if (!m || !m.months) return;
+  // Find the PO/Invoice trend chart card in Overview and swap the placeholder for a canvas.
+  const cards = document.querySelectorAll('#tab-overview .chart-card');
+  if (!cards[0]) return;
+  const target = cards[0];
+  const inner = target.querySelector('div[style*="min-height"]');
+  if (!inner) return;
+  inner.outerHTML = '<canvas id="po-monthly-chart" style="max-height:300px"></canvas>';
+  const ctx = document.getElementById('po-monthly-chart');
+  if (!ctx || typeof Chart === 'undefined') return;
+  const labels = m.months.map(x => x.ym);
+  const counts = m.months.map(x => x.po_count);
+  const gmv = m.months.map(x => x.gmv_capped_usd);
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'PO count', data: counts, backgroundColor: 'rgba(56,132,255,0.7)', yAxisID: 'y' },
+        { label: 'GMV (USD, capped)', data: gmv, type: 'line', borderColor: '#22c55e', backgroundColor: '#22c55e', yAxisID: 'y1', tension: 0.3, pointRadius: 2 },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: { position: 'left', ticks: { callback: v => fmtNum(v) } },
+        y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => fmtUsd(v) } },
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': ' + (c.dataset.yAxisID === 'y1' ? fmtUsd(c.raw) : fmtNum(c.raw)) } },
+      },
+    },
+  });
 }
 
 function updateRefreshDates() {

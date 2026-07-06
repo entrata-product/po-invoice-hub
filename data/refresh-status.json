@@ -1,6 +1,14 @@
 {
-  "last_refresh": "2026-07-06T15:00:00Z",
-  "triggered_by": "scaffold",
-  "status": "scaffold_only",
-  "notes": "Initial scaffold. No live data wired yet. Run refresh-po-invoice-hub skill to populate."
+  "last_refresh": "2026-07-06T16:35:00Z",
+  "triggered_by": "refresh-po-invoice-hub (initial data run)",
+  "status": "partial",
+  "notes": "First real-data run. PO headline KPIs, monthly trend, adoption, source mix, and health rates are live from Redshift entrata_entrata. Rejection-reason breakdown deferred (needs tighter time window; see po-rejection-reasons.json). Invoice datasets remain provisional (Pallavi's SQL still has placeholders per DEV-253879).",
+  "datasets_live": ["po-kpis.json", "po-monthly.json", "po-adoption.json", "po-source-mix.json", "po-health.json"],
+  "datasets_placeholder": ["po-rejection-reasons.json", "invoice-kpis.json", "invoice-monthly.json", "invoice-adoption.json", "invoice-source-mix.json", "ips-corrections.json", "client-voice.json", "roadmap.json"],
+  "known_data_gaps": [
+    "clients.details JSONB is not mirrored to Redshift, so Rapid vs Standard cluster split is unavailable. Live-client filter (company_status_type_id=4) still applied.",
+    "rule_stop_results table is not mirrored, so system_routing_hours / approver_wait_hours cannot be computed. Related CTEs stubbed to empty; downstream metrics report as NULL.",
+    "GMV totals use a $1M/PO cap to exclude data-entry outliers (max unfiltered = $5.4T, p99 = $9,500).",
+    "Vendor Marketplace, API, and Work Order > Add PO source categories return zero counts in the mirror; may indicate source/scheduled_ap_header_id/company_user_type_id fields need DBRE follow-up."
+  ]
 }

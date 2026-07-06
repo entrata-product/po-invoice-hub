@@ -1,16 +1,33 @@
 {
-  "_schema": "PO KPIs from DEV-231807. Populated by scripts/refresh_redshift.py --query po_core.",
-  "_status": "placeholder",
-  "window": "trailing_30_days",
-  "kpis": {
-    "total_pos_created": null,
-    "active_clients_using_pos": null,
-    "avg_days_to_approve": null,
-    "total_po_value_dollars": null,
-    "first_time_right_rate_pct": null,
-    "budget_compliance_rate_pct": null,
-    "rejection_reroute_rate_pct": null,
-    "user_penetration_rate_pct": null,
-    "pdf_attachment_rate_pct": null
+  "_schema": "PO headline KPIs. Populated by refresh-po-invoice-hub skill from queries/po-core-dataset.redshift.sql.",
+  "_status": "live",
+  "_source": "Redshift entrata_entrata (mirrored ~24h behind prod)",
+  "_notes": [
+    "Live-client filter only: clients.company_status_type_id = 4. Rapid/Standard cluster_id filter is dropped because the details JSONB column is not mirrored to Redshift (see reference/design-provenance.md).",
+    "GMV figures use a $1M/PO cap to exclude obvious data-entry outliers (p99 real value = $9,500; max unfiltered = $5.4T fat-finger).",
+    "PO scope: ap_headers with ap_header_type_id=4, sub_type IN (4,11,19,20), is_template=false.",
+    "The refresh script re-runs this whole file; do not hand-edit."
+  ],
+  "as_of": "2026-07-06",
+  "totals": {
+    "live_clients": 1085,
+    "clients_ever_transacted": 406,
+    "clients_transacting_last_12mo": 270,
+    "clients_transacting_last_30d": 220,
+    "total_pos_all_time": 8605504,
+    "gmv_all_time_capped_usd": 8979367305
+  },
+  "window_30d": {
+    "pos_created": 140276,
+    "gmv_capped_usd": 154676391,
+    "avg_po_amount_usd": 1105
+  },
+  "window_90d": {
+    "pos_created": 435293,
+    "gmv_capped_usd": 476878514
+  },
+  "window_12mo": {
+    "pos_created": 1650182,
+    "gmv_capped_usd": 1780092469
   }
 }

@@ -1,5 +1,36 @@
 {
-  "_schema": "Monthly PO volume + value. Derived from po_core_dataset. GROUP BY creation_month.",
-  "_status": "placeholder",
-  "months": []
+  "_schema": "Monthly PO volume, GMV (capped), and active-client count. Last 25 months. Populated by refresh-po-invoice-hub.",
+  "_status": "live",
+  "_notes": [
+    "GMV uses a $1M/PO cap (see po-kpis.json _notes).",
+    "The current month is partial; interpret the latest row as MTD, not full-month."
+  ],
+  "as_of": "2026-07-06",
+  "months": [
+    { "ym": "2024-07", "po_count": 135091, "gmv_capped_usd": 146672730, "clients_active": 174 },
+    { "ym": "2024-08", "po_count": 136244, "gmv_capped_usd": 147170639, "clients_active": 178 },
+    { "ym": "2024-09", "po_count": 123692, "gmv_capped_usd": 130072842, "clients_active": 176 },
+    { "ym": "2024-10", "po_count": 129421, "gmv_capped_usd": 145655605, "clients_active": 177 },
+    { "ym": "2024-11", "po_count": 103927, "gmv_capped_usd": 113629506, "clients_active": 178 },
+    { "ym": "2024-12", "po_count": 106057, "gmv_capped_usd": 112439827, "clients_active": 180 },
+    { "ym": "2025-01", "po_count": 117666, "gmv_capped_usd": 127005202, "clients_active": 180 },
+    { "ym": "2025-02", "po_count": 112187, "gmv_capped_usd": 123679532, "clients_active": 187 },
+    { "ym": "2025-03", "po_count": 121075, "gmv_capped_usd": 138107358, "clients_active": 181 },
+    { "ym": "2025-04", "po_count": 124174, "gmv_capped_usd": 139124063, "clients_active": 194 },
+    { "ym": "2025-05", "po_count": 126904, "gmv_capped_usd": 146032093, "clients_active": 199 },
+    { "ym": "2025-06", "po_count": 134162, "gmv_capped_usd": 151385019, "clients_active": 204 },
+    { "ym": "2025-07", "po_count": 146360, "gmv_capped_usd": 164742904, "clients_active": 201 },
+    { "ym": "2025-08", "po_count": 141587, "gmv_capped_usd": 149701328, "clients_active": 202 },
+    { "ym": "2025-09", "po_count": 141971, "gmv_capped_usd": 153842359, "clients_active": 206 },
+    { "ym": "2025-10", "po_count": 143859, "gmv_capped_usd": 151781197, "clients_active": 205 },
+    { "ym": "2025-11", "po_count": 113946, "gmv_capped_usd": 113825010, "clients_active": 210 },
+    { "ym": "2025-12", "po_count": 128549, "gmv_capped_usd": 130668886, "clients_active": 212 },
+    { "ym": "2026-01", "po_count": 125214, "gmv_capped_usd": 126761184, "clients_active": 216 },
+    { "ym": "2026-02", "po_count": 127947, "gmv_capped_usd": 143144590, "clients_active": 213 },
+    { "ym": "2026-03", "po_count": 141674, "gmv_capped_usd": 161023028, "clients_active": 218 },
+    { "ym": "2026-04", "po_count": 145476, "gmv_capped_usd": 160322598, "clients_active": 218 },
+    { "ym": "2026-05", "po_count": 137667, "gmv_capped_usd": 151807820, "clients_active": 217 },
+    { "ym": "2026-06", "po_count": 158237, "gmv_capped_usd": 175338904, "clients_active": 221 },
+    { "ym": "2026-07", "po_count": 28853, "gmv_capped_usd": 31652233, "clients_active": 189, "partial_month": true }
+  ]
 }

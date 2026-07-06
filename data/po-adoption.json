@@ -1,6 +1,26 @@
 {
-  "_schema": "PO adoption slice: client segment + release track. From po_core_dataset.",
-  "_status": "placeholder",
-  "by_segment": { "Enterprise": null, "Mid-Market": null, "Small": null },
-  "by_release_track": { "Rapid": null, "Standard": null }
+  "_schema": "PO adoption by client segment (unit-count buckets) and by release track.",
+  "_status": "live_partial",
+  "_notes": [
+    "release_track is unavailable in Redshift (details JSONB not mirrored). Both Rapid and Standard are shown as null until DBRE surfaces cluster_id.",
+    "'transacting_12mo' = distinct client_ids that created at least one PO in the last 12 months.",
+    "Segment thresholds match Pallavi's original: Enterprise >= 500 units, Mid-Market 100-499, Small < 100, Unknown = no property records."
+  ],
+  "as_of": "2026-07-06",
+  "by_segment": [
+    { "segment": "Enterprise", "live_clients": 762, "transacting_12mo": 240, "adoption_pct": 31.5, "total_units": 5054711 },
+    { "segment": "Mid-Market", "live_clients": 220, "transacting_12mo": 23, "adoption_pct": 10.5, "total_units": 61581 },
+    { "segment": "Small", "live_clients": 93, "transacting_12mo": 7, "adoption_pct": 7.5, "total_units": 3003 },
+    { "segment": "Unknown", "live_clients": 10, "transacting_12mo": 0, "adoption_pct": 0.0, "total_units": 0 }
+  ],
+  "by_release_track": {
+    "Rapid": null,
+    "Standard": null,
+    "_reason_null": "cluster_id (source of release track) is not mirrored to Redshift; see po-kpis.json _notes."
+  },
+  "portfolio_totals": {
+    "live_clients": 1085,
+    "transacting_12mo": 270,
+    "overall_adoption_pct": 24.9
+  }
 }

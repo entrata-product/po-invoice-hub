@@ -1,5 +1,11 @@
 {
-  "_schema": "Top rejection reasons from po_core_dataset. GROUP BY rejection_category, rejection_reason.",
-  "_status": "placeholder",
+  "_schema": "Top rejection reasons and category distribution from po_core_dataset. GROUP BY rejection_category, then top-N approval_note. Populated by the first_rejection CTE in queries/po-core-dataset.redshift.sql.",
+  "_status": "not_run_yet",
+  "_notes": [
+    "Deferred from V1 first-pass because the first_rejection CTE requires ROW_NUMBER over ~29M PO log rows and needs a tight date window to complete inside the MCP query timeout. Next refresh should include it, scoped to log_datetime >= NOW() - INTERVAL '12 months'.",
+    "Headline rejection COUNT is already live via po-health.json (48,259 POs with any rejection over the last 12 months, ~2.9% rate). This file is the deeper breakdown (reason category + top literal notes)."
+  ],
+  "as_of": null,
+  "window": "last_12_months",
   "categories": []
 }

@@ -1,5 +1,18 @@
 {
-  "_schema": "PO source_category mix. From po_core_dataset. 9 sources incl. Vendor Marketplace, Work Order > Add PO, API.",
-  "_status": "placeholder",
-  "sources": []
+  "_schema": "PO source_category distribution, last 12 months.",
+  "_status": "live",
+  "_notes": [
+    "Nine source categories are defined in Pallavi's dictionary; four are observed in the mirror. Vendor Marketplace, API, and Work Order > Add PO returned zero counts and are omitted from the list. This may mean the mirror does not fully populate source, scheduled_ap_header_id, or company_user_type_id=16 as production Postgres does; worth confirming with DBRE before drawing conclusions.",
+    "Categories listed in the spec that are inherently untrackable (Vendor Profile UI, Dashboard UI, Duplicate/Use Previous, PO Template) are unchanged."
+  ],
+  "as_of": "2026-07-06",
+  "window": "last_12_months",
+  "total_pos_in_window": 1650182,
+  "sources": [
+    { "source": "Add PO (System UI)", "po_count": 1401401, "pct": 84.9 },
+    { "source": "Recurring Transaction", "po_count": 195407, "pct": 11.8 },
+    { "source": "Punchout", "po_count": 44733, "pct": 2.7 },
+    { "source": "PO/CSV Import", "po_count": 8641, "pct": 0.5 }
+  ],
+  "sources_zero_in_mirror": ["Vendor Marketplace", "API", "Work Order > Add PO (System UI)"]
 }

@@ -1,0 +1,40 @@
+{
+  "_schema": "PO health metrics: approval rate, touchless rate, first-time-right rate, rejection rate.",
+  "_status": "live",
+  "_notes": [
+    "'Touchless' = approved with zero 'Edited' log entries.",
+    "'First-Time-Right' = approved with zero rejections/returns.",
+    "'Rejection rate' includes 'Rejected', 'Returned To Previous', and 'Returned To Beginning' actions per Pallavi's spec.",
+    "Denominator for approval / touchless / FTR is total POs created in the window (not just approved). Rejection rate uses the same denominator so the rates can be compared apples-to-apples."
+  ],
+  "as_of": "2026-07-06",
+  "window": "last_12_months",
+  "denominator": {
+    "pos_in_window": 1650182
+  },
+  "rates_pct": {
+    "approval_rate": 95.4,
+    "touchless_rate": 80.1,
+    "first_time_right_rate": 93.7,
+    "rejection_or_return_rate": 2.9
+  },
+  "counts": {
+    "approved_pos": 1574722,
+    "touchless_pos": 1322539,
+    "first_time_right_pos": 1545464,
+    "pos_with_any_rejection": 48259
+  },
+  "status_distribution_12mo": [
+    { "status": "Closed", "count": 1227946, "pct": 74.4 },
+    { "status": "Approved", "count": 293178, "pct": 17.8 },
+    { "status": "Deleted", "count": 60396, "pct": 3.7 },
+    { "status": "Pending", "count": 35584, "pct": 2.2 },
+    { "status": "Partially Invoiced", "count": 19507, "pct": 1.2 },
+    { "status": "Rejected", "count": 13571, "pct": 0.8 }
+  ],
+  "type_distribution_12mo": [
+    { "po_type": "Standard", "count": 1399753, "pct": 84.9 },
+    { "po_type": "Catalog", "count": 237893, "pct": 14.4 },
+    { "po_type": "Job Costing", "count": 12536, "pct": 0.8 }
+  ]
+}
