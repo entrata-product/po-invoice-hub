@@ -656,7 +656,7 @@
   </div>
 
   <div class="section-title" style="margin-top:32px">Top rejection concentration — CSM outreach targets</div>
-  <p class="section-subtitle">Live clients with 500+ POs in the last 12 months, ranked by rejection rate. Top of table = highest CSM leverage per outreach hour. Pattern column classifies each client into <em>coaching-heavy</em> (product-fixable via entry-form validation), <em>duplicate-heavy</em> (product-fixable via create-time dedupe), <em>policy-heavy</em> (workflow decision, not product-fixable), <em>ownership-heavy</em> (property lifecycle cleanup), or <em>mixed / insufficient signal</em> (needs deep-dive).</p>
+  <p class="section-subtitle">Live clients with 500+ POs in the last 12 months, ranked by rejection rate. Top of table = highest CSM leverage per outreach hour. Pattern column classifies each client using v2 classifier (2026-07-06): four product-fixable categories — <em>coaching</em> (entry-form validation), <em>duplicate</em> (create-time dedupe), <em>budget-guardrail</em> (Advanced Budgeting integration), <em>turn-timing</em> (turn workflow date-fields); two CS-conversation categories — <em>policy</em>, <em>ownership</em>; two supplementary — <em>not-needed</em> (contract-covered warning), <em>post-month</em> (accounting-period default); plus <em>mixed</em> and <em>insufficient signal</em>. Hover a badge to see the classifier breakdown.</p>
   <div id="cs-pattern-strip" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;font-size:12px"></div>
   <div class="table-surface">
     <table>
@@ -871,6 +871,10 @@ const PATTERN_STYLES = {
   'duplicate-heavy':    { bg: 'rgba(139,92,246,0.15)',  fg: '#8b5cf6', label: 'duplicate' },
   'policy-heavy':       { bg: 'rgba(239,68,68,0.15)',   fg: '#ef4444', label: 'policy' },
   'ownership-heavy':    { bg: 'rgba(245,158,11,0.15)',  fg: '#f59e0b', label: 'ownership' },
+  'budget-guardrail':   { bg: 'rgba(20,184,166,0.15)',  fg: '#14b8a6', label: 'budget' },
+  'turn-timing':        { bg: 'rgba(236,72,153,0.15)',  fg: '#ec4899', label: 'turn/timing' },
+  'not-needed':         { bg: 'rgba(168,85,247,0.15)',  fg: '#a855f7', label: 'not-needed' },
+  'post-month':         { bg: 'rgba(234,179,8,0.15)',   fg: '#eab308', label: 'post-month' },
   'mixed':              { bg: 'rgba(148,163,184,0.20)', fg: '#64748b', label: 'mixed' },
   'insufficient signal':{ bg: 'rgba(148,163,184,0.10)', fg: '#94a3b8', label: 'unclassified' },
 };
@@ -886,7 +890,7 @@ function hydrateCsPatternStrip() {
   if (!strip) return;
   const d = state.csTopClients;
   if (!d || !d.pattern_summary) return;
-  const order = ['coaching-heavy', 'duplicate-heavy', 'policy-heavy', 'ownership-heavy', 'mixed', 'insufficient signal'];
+  const order = ['coaching-heavy', 'duplicate-heavy', 'policy-heavy', 'ownership-heavy', 'budget-guardrail', 'turn-timing', 'not-needed', 'post-month', 'mixed', 'insufficient signal'];
   const total = Object.values(d.pattern_summary).reduce((a, b) => a + b, 0);
   strip.innerHTML = order
     .filter(p => d.pattern_summary[p])
