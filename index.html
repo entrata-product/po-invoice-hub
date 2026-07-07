@@ -715,6 +715,7 @@ Promise.all([
   loadData('cs200wWashingtonDeepDive', './data/local/cs-200w-washington-deep-dive.json'),
   loadData('csIncoreDeepDive', './data/local/cs-incore-deep-dive.json'),
   loadData('csRockstarCapitalDeepDive', './data/local/cs-rockstar-capital-deep-dive.json'),
+  loadData('csWootenCompanyDeepDive', './data/local/cs-wooten-company-deep-dive.json'),
 ]).then(hydrate);
 
 const DEEP_DIVE_INDEX = {
@@ -724,6 +725,7 @@ const DEEP_DIVE_INDEX = {
   100353: 'cs200wWashingtonDeepDive',
   16706: 'csIncoreDeepDive',
   101469: 'csRockstarCapitalDeepDive',
+  16991: 'csWootenCompanyDeepDive',
 };
 
 function fmtNum(n) {

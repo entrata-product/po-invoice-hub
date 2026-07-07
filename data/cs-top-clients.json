@@ -47,9 +47,9 @@
       "pos_with_any_rejection": 357,
       "total_rejection_events": 398,
       "rejection_rate_pct": 18.0,
-      "cs_theme": "Elevated \u2014 likely coding or routing pattern",
+      "cs_theme": "Make-Ready workflow integration \u2014 steady-state design partner",
       "pattern": "photo-required",
-      "pattern_note": "47 of 76 classified rejections are photo_required (62%). Top-3: 47 photo_required + 14 duplicate + 5 coaching. Classifier hit rate 19.1% of 398 total."
+      "pattern_note": "[v4 classifier: photo-required] Deep-dive 2026-07-07 revealed the REAL pattern is Facilities/Make-Ready workflow integration, not just photos. 25% of Wooten's 357 first-rejections cite missing Make-Ready subtask linkage (~90 events); 27% cite missing photos (98 events, heavy overlap). Wooten approvers require every turn/damage PO to be attached to a Make-Ready subtask WITH photos of the damaged item. Two-person approval team ('MJS' + colleague) generates 96% of rejections. Vendor pattern is textbook \u2014 appliances (Metro), flooring (Anderson, All Flooring), tubs (417), restoration (Aero) all rejected at 15-59% with high photo concentration. Also a separate vendor-deactivation gap: Xtreme Exteriors (17/31 = 54.8% rejected) is a vendor Wooten decided to switch off but Entrata doesn't enforce. Rank-2 in top-25 by rejection rate (18%), stable at 15-25% for 13 months \u2014 steady-state design partner (no scaling pressure, no self-correction expected). FIRST cross-suite epic candidate (PO/Invoices + Facilities/Maintenance). See knowledge/csm-quick-wins/wooten-company/."
     },
     {
       "rank": 3,
