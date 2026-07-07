@@ -1,24 +1,25 @@
 {
   "_source": "entrata_entrata.ap_headers + ap_header_logs via Redshift MCP",
-  "_query": "queries/cs-top-clients.redshift.sql (rankings) + queries/cs-pattern-classifier.redshift.sql v2 (pattern field, 2026-07-06 expansion \u2014 added budget_guardrail, turn_timing, not_needed, post_month categories from deep-dive findings)",
-  "_run_ts": "2026-07-06T20:35:00Z",
+  "_query": "queries/cs-top-clients.redshift.sql (rankings) + queries/cs-pattern-classifier.redshift.sql v3 (9 categories: added chargeback_recovery from Incore deep-dive 2026-07-06)",
+  "_run_ts": "2026-07-07T12:45:00Z",
   "_scope": "Live clients (company_status_type_id = 4) with >=500 POs in last 12 months. Ranked by rejection_rate_pct. Pattern field classifies rejection-note text into duplicate / coaching / policy / ownership / mixed / insufficient.",
   "_notes": [
     "This is the CS Toolkit's core targeting list. Top of table = highest CSM leverage per outreach hour.",
     "EPC Real Estate Group is a massive outlier \u2014 45.5% rejection rate is 2.5x the next client and >8x the suite average of ~3%.",
     "IRT rejects only 8.4% but is the biggest volume \u2014 9,502 rejected POs = the largest absolute waste in the book.",
-    "Pattern classifier v2 (2026-07-06): 8 tracked categories after deep-dive expansion. Added budget_guardrail, turn_timing, not_needed, post_month based on IRT + 200 W findings. Assignment rule: top category among 8 tracked; label 'X-heavy' if it exceeds 60% of classified signal, 'mixed' if 5-60%, 'insufficient signal' if < 5% of total rejections.",
-    "v2 vs v1 changes (7 of 25 reclassified): IRT coaching \u2192 mixed (correctly reflects 4-pattern shape); Aspire \u2192 turn-timing (first pure turn-timing-heavy client); Wooten, Troy Allan, Forthright, Brick and Vine reclassified based on new categories; Park7 dropped below signal floor."
+    "Pattern classifier v3 (2026-07-07): 9 tracked categories. Added chargeback_recovery based on Incore deep-dive \u2014 turned out to be present at 8+ clients (159 Incore, 125 Rockstar, 32 IRT, 15 Forthright, plus smaller footprints).",
+    "v3 vs v2 major changes: Rockstar Capital: insufficient \u2192 chargeback-recovery (125 events \u2014 SECOND-LARGEST chargeback client and now a strong design-partner candidate). Forthright: mixed \u2192 chargeback-recovery (15 events, 65% of classified). Incore: coaching \u2192 coaching-heavy still, but chargeback now recognized as significant sub-pattern."
   ],
   "pattern_legend": {
     "coaching-heavy": "Rejection notes are approver corrections (GL codes, unit numbers, supporting docs). Product-fixable via entry-form validation. Design partner candidate.",
     "duplicate-heavy": "Rejection notes are 'duplicate PO' or 'invoice already entered'. Product-fixable via create-time duplicate detection.",
     "policy-heavy": "Rejection notes indicate client has decided not to use POs (or a portfolio of theirs hasn't). Not a product problem \u2014 CSM conversation about workflow alignment.",
     "ownership-heavy": "Rejection notes indicate property ownership changes (community sold, no longer manage). Data hygiene / property lifecycle problem.",
-    "budget-guardrail": "Rejection notes reference budget alignment (over budget, list savings, budget details, overage). NEW \u2014 surfaced from IRT deep-dive. Advanced Budgeting integration territory.",
-    "turn-timing": "Rejection notes cite missing make-ready / move-out / notice dates. NEW \u2014 surfaced from IRT deep-dive. Turn workflow integration territory.",
-    "not-needed": "Rejection notes indicate PO wasn't necessary (already covered by contract, service not needed). NEW \u2014 surfaced from IRT + 200 W deep-dives. Active-contract awareness at PO entry.",
-    "post-month": "Rejection notes cite accounting period issues (post month passed, wrong period). NEW \u2014 surfaced from IRT + 200 W deep-dives. Better default period selection at entry.",
+    "budget-guardrail": "Rejection notes reference budget alignment (over budget, list savings, budget details, overage). Advanced Budgeting integration territory.",
+    "turn-timing": "Rejection notes cite missing make-ready / move-out / notice dates. Turn workflow integration territory.",
+    "not-needed": "Rejection notes indicate PO wasn't necessary (already covered by contract, service not needed). Active-contract awareness at PO entry.",
+    "post-month": "Rejection notes cite accounting period issues (post month passed, wrong period). Better default period selection at entry.",
+    "chargeback-recovery": "Rejection notes ask for chargeback / resident bill-back on turn/damage POs. NEW v3 \u2014 surfaced from Incore deep-dive. Also present at Rockstar (125 events), IRT (32), Forthright (15). CBR field + FMO attachment requirement at PO entry.",
     "mixed": "Multiple patterns present, no single dominant one. Top category < 60% of classified signal. Deep-dive recommended before outreach.",
     "insufficient signal": "Top category is < 5% of the client's total rejections, or no classifier matches at all. Approvers likely write free-form notes. Deep-dive required."
   },
@@ -57,7 +58,7 @@
       "rejection_rate_pct": 16.5,
       "cs_theme": "Rejection > POs-affected suggests multi-round rework",
       "pattern": "coaching-heavy",
-      "pattern_note": "25 of 28 classified rejections are coaching (89%). Top-3: 25 coaching + 2 budget_guardrail + 1 duplicate. Classifier hit rate 6.3% of 444 total."
+      "pattern_note": "26 of 29 classified rejections are coaching (90%). Top-3: 26 coaching + 2 budget_guardrail + 1 duplicate. Classifier hit rate 6.5% of 444 total."
     },
     {
       "rank": 4,
@@ -81,7 +82,7 @@
       "rejection_rate_pct": 13.3,
       "cs_theme": "1.5 rejections per rejected PO \u2014 rework-heavy",
       "pattern": "coaching-heavy",
-      "pattern_note": "75 of 94 classified rejections are coaching (80%). Top-3: 75 coaching + 14 duplicate + 3 turn_timing. Classifier hit rate 9.3% of 1011 total."
+      "pattern_note": "77 of 96 classified rejections are coaching (80%). Top-3: 77 coaching + 14 duplicate + 3 turn_timing. Classifier hit rate 9.5% of 1011 total."
     },
     {
       "rank": 6,
@@ -139,9 +140,9 @@
       "pos_with_any_rejection": 938,
       "total_rejection_events": 1427,
       "rejection_rate_pct": 10.3,
-      "cs_theme": "1.5x rework rate \u2014 approver bottleneck",
-      "pattern": "insufficient signal",
-      "pattern_note": "Top category \"coaching\" is only 47/1427 = 3.3% of total rejections. Below 5% signal floor."
+      "cs_theme": "Chargeback-heavy \u2014 SECOND-LARGEST CBR client (design partner candidate)",
+      "pattern": "chargeback-recovery",
+      "pattern_note": "v3 classifier: 125 of 178 classified rejections are chargeback-recovery (70% dominance) \u2014 SECOND-LARGEST chargeback footprint after Incore. Different vocabulary than Incore: 'upload fmo to show chargeback', 'missing fmo to show previous resident charge back', 'attach fmo to show chargeback for cleaning'. Approvers demand FMO (file move-out / move-out form) documentation attached before approving turn/damage POs. Direct design-partner candidate for CBR + document-attachment epic \u2014 cross-vocabulary validation of the Incore pattern. Deep-dive not yet run."
     },
     {
       "rank": 11,
@@ -165,7 +166,7 @@
       "rejection_rate_pct": 8.8,
       "cs_theme": "Low volume \u2014 pattern-check only",
       "pattern": "insufficient signal",
-      "pattern_note": "No matches for any classified category. All 55 classifier rows were \"other\" (free-form or unmatched phrasing)."
+      "pattern_note": "Top category \"chargeback_recovery\" is only 1/59 = 1.7% of total rejections. Below 5% signal floor."
     },
     {
       "rank": 13,
@@ -213,7 +214,7 @@
       "rejection_rate_pct": 7.6,
       "cs_theme": "Mid-market volume + rework \u2014 approval chain review",
       "pattern": "coaching-heavy",
-      "pattern_note": "312 of 372 classified rejections are coaching (84%). Top-3: 312 coaching + 45 duplicate + 10 policy. Classifier hit rate 12.7% of 2940 total."
+      "pattern_note": "312 of 373 classified rejections are coaching (84%). Top-3: 312 coaching + 45 duplicate + 10 policy. Classifier hit rate 12.7% of 2940 total."
     },
     {
       "rank": 17,
@@ -225,7 +226,7 @@
       "rejection_rate_pct": 6.4,
       "cs_theme": "Approaching healthy \u2014 spot-check only",
       "pattern": "mixed",
-      "pattern_note": "Top-3: 13 coaching + 6 not_needed + 6 duplicate. Top category \"coaching\" is 50% of 26 classified (< 60% dominance threshold). Multi-pattern client \u2014 deep-dive to disambiguate."
+      "pattern_note": "Top-3: 15 chargeback_recovery + 13 coaching + 6 not_needed. Top category \"chargeback_recovery\" is 37% of 41 classified (< 60% dominance threshold). Multi-pattern client \u2014 deep-dive to disambiguate."
     },
     {
       "rank": 18,
@@ -237,7 +238,7 @@
       "rejection_rate_pct": 6.3,
       "cs_theme": "Enterprise \u2014 routing audit worth it",
       "pattern": "coaching-heavy",
-      "pattern_note": "573 of 610 classified rejections are coaching (94%). Top-3: 573 coaching + 29 duplicate + 8 policy. Classifier hit rate 35.0% of 1745 total."
+      "pattern_note": "576 of 613 classified rejections are coaching (94%). Top-3: 576 coaching + 29 duplicate + 8 policy. Classifier hit rate 35.1% of 1745 total."
     },
     {
       "rank": 19,
@@ -285,7 +286,7 @@
       "rejection_rate_pct": 5.6,
       "cs_theme": "Enterprise \u2014 volume alone puts them on radar",
       "pattern": "mixed",
-      "pattern_note": "Top-3: 238 coaching + 172 duplicate + 34 ownership_changed. Top category \"coaching\" is 48% of 495 classified (< 60% dominance threshold). Multi-pattern client \u2014 deep-dive to disambiguate."
+      "pattern_note": "Top-3: 238 coaching + 172 duplicate + 34 ownership_changed. Top category \"coaching\" is 48% of 496 classified (< 60% dominance threshold). Multi-pattern client \u2014 deep-dive to disambiguate."
     },
     {
       "rank": 23,
@@ -321,15 +322,16 @@
       "rejection_rate_pct": 5.0,
       "cs_theme": "Enterprise at median",
       "pattern": "coaching-heavy",
-      "pattern_note": "375 of 379 classified rejections are coaching (99%). Top-3: 375 coaching + 2 duplicate + 1 turn_timing. Classifier hit rate 22.8% of 1662 total."
+      "pattern_note": "377 of 381 classified rejections are coaching (99%). Top-3: 377 coaching + 2 duplicate + 1 turn_timing. Classifier hit rate 22.9% of 1662 total."
     }
   ],
   "pattern_summary": {
     "policy-heavy": 2,
     "mixed": 5,
     "coaching-heavy": 9,
-    "insufficient signal": 6,
+    "insufficient signal": 5,
     "ownership-heavy": 1,
+    "chargeback-recovery": 1,
     "turn-timing": 1,
     "duplicate-heavy": 1
   }

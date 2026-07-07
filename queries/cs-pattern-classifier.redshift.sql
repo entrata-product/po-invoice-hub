@@ -2,27 +2,34 @@
 -- Powers the `pattern` field on data/cs-top-clients.json.
 --
 -- Rules for pattern assignment (applied client-side after this query runs):
---   pattern = category with highest event count among the 8 tracked categories
+--   pattern = category with highest event count among the 9 tracked categories
 --   IF (top_category events / total rejections at client) < 5%           → 'insufficient signal'
 --   ELIF (top_category events / total classified events) >= 60%          → '<top>-heavy'
 --   ELSE                                                                  → 'mixed'
 --
--- Category list (2026-07-06 v2 — post-deep-dive expansion):
---   1. duplicate           — create-time dedupe territory
---   2. coaching            — entry-form validation territory (GL / unit / docs)
---   3. policy              — CSM workflow conversation
---   4. ownership_changed   — property lifecycle / data hygiene
---   5. budget_guardrail    — NEW (surfaced at IRT) — Advanced Budgeting integration territory
---   6. turn_timing         — NEW (surfaced at IRT) — turn/make-ready workflow integration
---   7. not_needed          — NEW (surfaced at IRT + 200 W) — active-contract awareness territory
---   8. post_month          — NEW (surfaced at IRT + 200 W) — accounting-period default territory
---   other                  — unclassified fallback
+-- Category list (2026-07-06 v3 — Incore deep-dive extension):
+--   1. duplicate            — create-time dedupe territory
+--   2. coaching             — entry-form validation territory (GL / unit / docs)
+--   3. policy               — CSM workflow conversation
+--   4. ownership_changed    — property lifecycle / data hygiene
+--   5. budget_guardrail     — v2 (surfaced at IRT) — Advanced Budgeting integration territory
+--   6. turn_timing          — v2 (surfaced at IRT) — turn/make-ready workflow integration
+--   7. not_needed           — v2 (surfaced at IRT + 200 W) — active-contract awareness territory
+--   8. post_month           — v2 (surfaced at IRT + 200 W) — accounting-period default territory
+--   9. chargeback_recovery  — NEW v3 (surfaced at Incore) — CBR field on turn/damage POs
+--   other                   — unclassified fallback
 --
--- Provenance of the four new categories:
---   - budget_guardrail: IRT deep-dive 2026-07-06 (199 events at that client alone)
---   - turn_timing:      IRT deep-dive 2026-07-06 (180 events at that client alone)
---   - not_needed:       IRT deep-dive 2026-07-06 (99 events) + 200 W deep-dive (3 events with contract signal)
---   - post_month:       IRT deep-dive 2026-07-06 (49 events) + 200 W deep-dive (4 events)
+-- Provenance:
+--   - v1 (4 categories): initial rollout before deep-dives
+--   - v2 (added 4):   budget_guardrail, turn_timing, not_needed, post_month
+--                     surfaced by IRT (17541) and 200 W Washington (100353) deep-dives 2026-07-06
+--   - v3 (added 1):   chargeback_recovery — surfaced by Incore Residential (16706) deep-dive 2026-07-06
+--                     (96 events at Incore alone. Uses word-boundary matching to avoid false positives
+--                     on names containing "cbr"-adjacent substrings.)
+--
+-- Note on chargeback_recovery matching: Redshift LIKE is case-sensitive by default; input is LOWER()'d
+-- upstream. `%cbr%` alone could false-positive on names like "cabri", "cbrand". We use explicit variants
+-- observed at Incore + boundary patterns to avoid overmatch.
 --
 -- Snapshot classifier, not a governance rule set. When new deep-dives surface new phrasing,
 -- extend the WHEN clauses below. Keep ORDER of WHEN clauses stable (first match wins).
@@ -156,7 +163,27 @@ classified AS (
                 OR note LIKE '%period closed%'
                 THEN 'post_month'
 
-            -- 8. COACHING (existing + extensions from RL and IRT deep-dives)
+            -- 8. CHARGEBACK RECOVERY (NEW v3 — from Incore deep-dive)
+            -- Explicit variants only to avoid false positives on names/words containing "cbr" substrings.
+            WHEN note LIKE '%missing cbr%'
+                OR note LIKE '%need cbr%'
+                OR note LIKE '%any cbr%'
+                OR note LIKE '%cbr?%'
+                OR note LIKE '%cbr $%'
+                OR note LIKE '%cbr amount%'
+                OR note LIKE '%no cbr%'
+                OR note LIKE '%add cbr%'
+                OR note LIKE '%chargeback%'
+                OR note LIKE '%charge back%'
+                OR note LIKE '%charge-back%'
+                OR note LIKE '%bill back%'
+                OR note LIKE '%billback%'
+                OR note LIKE '%bill-back%'
+                OR note LIKE '%resident bill%'
+                OR note LIKE '%damage recovery%'
+                THEN 'chargeback_recovery'
+
+            -- 9. COACHING (existing + extensions from RL and IRT deep-dives)
             WHEN note LIKE '%pls code%'
                 OR note LIKE '%please code%'
                 OR note LIKE '%recode%'
