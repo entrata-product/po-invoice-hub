@@ -7,16 +7,18 @@
 --   ELIF (top_category events / total classified events) >= 60%          → '<top>-heavy'
 --   ELSE                                                                  → 'mixed'
 --
--- Category list (2026-07-06 v3 — Incore deep-dive extension):
+-- Category list (2026-07-07 v4 — Rockstar Capital deep-dive extension):
 --   1. duplicate            — create-time dedupe territory
---   2. coaching             — entry-form validation territory (GL / unit / docs)
---   3. policy               — CSM workflow conversation
---   4. ownership_changed    — property lifecycle / data hygiene
---   5. budget_guardrail     — v2 (surfaced at IRT) — Advanced Budgeting integration territory
---   6. turn_timing          — v2 (surfaced at IRT) — turn/make-ready workflow integration
---   7. not_needed           — v2 (surfaced at IRT + 200 W) — active-contract awareness territory
---   8. post_month           — v2 (surfaced at IRT + 200 W) — accounting-period default territory
---   9. chargeback_recovery  — NEW v3 (surfaced at Incore) — CBR field on turn/damage POs
+--   2. policy               — CSM workflow conversation
+--   3. ownership_changed    — property lifecycle / data hygiene
+--   4. budget_guardrail     — v2 (surfaced at IRT) — Advanced Budgeting integration territory
+--   5. turn_timing          — v2 (surfaced at IRT) — turn/make-ready workflow integration
+--   6. not_needed           — v2 (surfaced at IRT + 200 W) — active-contract awareness territory
+--   7. post_month           — v2 (surfaced at IRT + 200 W) — accounting-period default territory
+--   8. chargeback_recovery  — v3 (surfaced at Incore) — CBR field / FMO attachment on turn/damage POs
+--   9. photo_required       — NEW v4 (surfaced at Rockstar) — required photo attachment at PO entry
+--  10. quote_required       — NEW v4 (surfaced at Rockstar) — required quote/estimate attachment at PO entry
+--  11. coaching             — entry-form validation territory (GL / unit / general docs)
 --   other                   — unclassified fallback
 --
 -- Provenance:
@@ -24,8 +26,15 @@
 --   - v2 (added 4):   budget_guardrail, turn_timing, not_needed, post_month
 --                     surfaced by IRT (17541) and 200 W Washington (100353) deep-dives 2026-07-06
 --   - v3 (added 1):   chargeback_recovery — surfaced by Incore Residential (16706) deep-dive 2026-07-06
---                     (96 events at Incore alone. Uses word-boundary matching to avoid false positives
---                     on names containing "cbr"-adjacent substrings.)
+--   - v4 (added 2):   photo_required, quote_required
+--                     surfaced by Rockstar Capital Management (101469) deep-dive 2026-07-07
+--                     Rockstar's rejection log shows 52% of first-rejections are doc-attachment
+--                     problems (photos 226, FMO/chargeback 264, quotes 125 of 946 total).
+--                     Extending the classifier to catch photo/quote patterns lets us size the
+--                     required-attachment-matrix opportunity cross-portfolio.
+--                     Note: photo/quote WHEN clauses ordered BEFORE coaching so specific
+--                     patterns win over the generic coaching catch-all. Photo/quote phrases
+--                     removed from coaching bucket.
 --
 -- Note on chargeback_recovery matching: Redshift LIKE is case-sensitive by default; input is LOWER()'d
 -- upstream. `%cbr%` alone could false-positive on names like "cabri", "cbrand". We use explicit variants
@@ -163,8 +172,10 @@ classified AS (
                 OR note LIKE '%period closed%'
                 THEN 'post_month'
 
-            -- 8. CHARGEBACK RECOVERY (NEW v3 — from Incore deep-dive)
+            -- 8. CHARGEBACK RECOVERY (v3 — from Incore deep-dive; extended v4 with Rockstar FMO patterns)
             -- Explicit variants only to avoid false positives on names/words containing "cbr" substrings.
+            -- Note: Rockstar's "fmo to show chargeback" phrasing is already caught by the "chargeback"
+            -- clause; adding "fmo" alone would over-match (FMO is Rockstar-specific shorthand).
             WHEN note LIKE '%missing cbr%'
                 OR note LIKE '%need cbr%'
                 OR note LIKE '%any cbr%'
@@ -181,9 +192,80 @@ classified AS (
                 OR note LIKE '%bill-back%'
                 OR note LIKE '%resident bill%'
                 OR note LIKE '%damage recovery%'
+                OR note LIKE '%missing fmo%'
+                OR note LIKE '%upload%fmo%'
+                OR note LIKE '%attach%fmo%'
                 THEN 'chargeback_recovery'
 
-            -- 9. COACHING (existing + extensions from RL and IRT deep-dives)
+            -- 9. PHOTO REQUIRED (NEW v4 — from Rockstar deep-dive)
+            -- Rockstar 226 events. Doc-attachment pattern: approvers demand photos on turn/damage POs.
+            -- Ordered BEFORE coaching so specific photo phrasing wins over generic "please attach".
+            WHEN note LIKE '%need pic%'
+                OR note LIKE '%need photo%'
+                OR note LIKE '%need image%'
+                OR note LIKE '%missing pic%'
+                OR note LIKE '%missing photo%'
+                OR note LIKE '%missing image%'
+                OR note LIKE '%upload pic%'
+                OR note LIKE '%upload photo%'
+                OR note LIKE '%upload image%'
+                OR note LIKE '%attach pic%'
+                OR note LIKE '%attach photo%'
+                OR note LIKE '%attach image%'
+                OR note LIKE '%send pic%'
+                OR note LIKE '%send photo%'
+                OR note LIKE '%include pic%'
+                OR note LIKE '%include photo%'
+                OR note LIKE '%add pic%'
+                OR note LIKE '%add photo%'
+                OR note LIKE '%more pic%'
+                OR note LIKE '%more photo%'
+                OR note LIKE '%no pic%'
+                OR note LIKE '%no photo%'
+                OR note LIKE '%without pic%'
+                OR note LIKE '%without photo%'
+                OR note LIKE '%pictures please%'
+                OR note LIKE '%photos please%'
+                OR note LIKE '%pls upload pic%'
+                OR note LIKE '%pls upload photo%'
+                OR note LIKE '%please upload pic%'
+                OR note LIKE '%please upload photo%'
+                OR note LIKE '%show pic%'
+                OR note LIKE '%show photo%'
+                THEN 'photo_required'
+
+            -- 10. QUOTE REQUIRED (NEW v4 — from Rockstar deep-dive)
+            -- Rockstar 125 events. Doc-attachment pattern: approvers demand quotes/estimates
+            -- for POs above threshold amounts.
+            WHEN note LIKE '%need quote%'
+                OR note LIKE '%need a quote%'
+                OR note LIKE '%need estimate%'
+                OR note LIKE '%need an estimate%'
+                OR note LIKE '%missing quote%'
+                OR note LIKE '%missing estimate%'
+                OR note LIKE '%upload quote%'
+                OR note LIKE '%upload estimate%'
+                OR note LIKE '%attach quote%'
+                OR note LIKE '%attach estimate%'
+                OR note LIKE '%send quote%'
+                OR note LIKE '%send estimate%'
+                OR note LIKE '%include quote%'
+                OR note LIKE '%include estimate%'
+                OR note LIKE '%where is%quote%'
+                OR note LIKE '%where is%estimate%'
+                OR note LIKE '%provide quote%'
+                OR note LIKE '%provide estimate%'
+                OR note LIKE '%no quote%'
+                OR note LIKE '%no estimate%'
+                OR note LIKE '%please upload quote%'
+                OR note LIKE '%pls upload quote%'
+                OR note LIKE '%please attach quote%'
+                OR note LIKE '%pls attach quote%'
+                OR note LIKE '%quote please%'
+                OR note LIKE '%estimate please%'
+                THEN 'quote_required'
+
+            -- 11. COACHING (general entry-form validation — with photos/quotes removed to v4 categories above)
             WHEN note LIKE '%pls code%'
                 OR note LIKE '%please code%'
                 OR note LIKE '%recode%'
@@ -207,9 +289,6 @@ classified AS (
                 OR note LIKE '%attach contract%'
                 OR note LIKE '%attach receipt%'
                 OR note LIKE '%attach documentation%'
-                OR note LIKE '%attach photos%'
-                OR note LIKE '%add photos%'
-                OR note LIKE '%please add photos%'
                 OR note LIKE '%pls add support%'
                 OR note LIKE '%missing capex%'
                 OR note LIKE '%see teams%'
