@@ -236,10 +236,10 @@
 
     /* Focus View */
     .focus-view { display: none; padding: 28px 32px 64px; max-width: 1200px; margin: 0 auto; }
-    .focus-view.active { display: block; }
     body.focus-mode .tabs { display: none; }
     body.focus-mode .tab-content { display: none !important; }
     body.focus-mode .focus-view { display: block; }
+    body:not(.focus-mode) .focus-view { display: none !important; }
 
     /* View switcher */
     .view-switcher {
@@ -405,16 +405,13 @@
     <div class="focus-section-header">
       <div class="focus-section-num">3</div>
       <div class="focus-section-title">What's shipping next</div>
-      <div class="focus-section-subtitle">Roadmap for PO, Invoice, IPS, ELI</div>
+      <div class="focus-section-subtitle" id="shipping-next-subtitle">Roadmap for PO, Invoice, IPS, ELI</div>
     </div>
     <p class="focus-narrative">
-      Live pull from Jira: epics in-flight or upcoming across PXF - Invoices component (and adjacent).
-      Grouped by release cadence (R2, R3, R4 2026).
+      Near-term epics across PXF-Invoices + PXF-Invoice Processing. Priority-first, capped at the top of each release column. Full list on the Roadmap tab.
     </p>
-    <div class="placeholder-card">
-      <div class="card-title">Roadmap column view</div>
-      <div class="card-desc">Wired via fetch_jira_roadmap.mjs — same script pattern as vendor-hub, filtered on PXF - Invoices component + ELI/IPS labels.</div>
-      <span class="placeholder-badge">Pending data wiring</span>
+    <div id="shipping-next-container" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px">
+      <div style="color:var(--subtle);font-size:13px;padding:20px">Loading roadmap…</div>
     </div>
   </div>
 </div>
@@ -618,7 +615,7 @@
 <!-- ============================================================================ -->
 <div class="tab-content" id="tab-roadmap">
   <div class="section-title">Roadmap — what's shipping</div>
-  <p class="section-subtitle" id="roadmap-subtitle">Live pull from Jira: active epics on PXF - Invoices + PXF - Invoice Processing (ELI Invoice Entry is a sub-theme of IPS). Grouped by release cadence parsed from epic summary.</p>
+  <p class="section-subtitle" id="roadmap-subtitle">Live pull from Jira: active epics on PXF-Invoices + PXF-Invoice Processing (ELI Invoice Entry is a sub-theme of IPS). Showing only epics with a firm release commitment — epics without a parsed release (or targeted at past releases) are hidden to keep the board focused on what clients can plan on.</p>
 
   <div id="roadmap-columns-container" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;margin-top:16px">
     <div style="color:var(--subtle);font-size:13px;padding:20px">Loading roadmap…</div>
@@ -776,6 +773,7 @@ function hydrate() {
   hydrateRejectionReasons();
   hydrateCsClientsTable();
   hydrateRoadmap();
+  hydrateShippingNext();
 }
 
 function setKpiCard(root, kpi, value) {
@@ -1066,52 +1064,109 @@ function closeDeepDive() {
   document.body.style.overflow = '';
 }
 
+// Release order for chronological display + past-release filtering
+const RELEASE_ORDER = ['R1 2026','R2 2026','R3 2026','R4 2026','R1 2027','R2 2027','R3 2027','R4 2027','R1 2028','R2 2028'];
+// Current release floor — hide anything before this. Today is Jul 2026 so R3 2026 (October) is the nearest live commitment.
+const CURRENT_RELEASE_FLOOR = 'R3 2026';
+
+function releaseIsFirm(release) {
+  if (!release || release === 'Unspecified') return false;
+  const idx = RELEASE_ORDER.indexOf(release);
+  const floor = RELEASE_ORDER.indexOf(CURRENT_RELEASE_FLOOR);
+  return idx >= floor;
+}
+
+function filterAndSortRoadmapColumns(columns) {
+  return columns
+    .filter(c => releaseIsFirm(c.release) && c.epic_count > 0)
+    .sort((a, b) => RELEASE_ORDER.indexOf(a.release) - RELEASE_ORDER.indexOf(b.release));
+}
+
+function priorityBadgeHtml(p) {
+  const color = p === 'P0' ? '#ef4444' : p === 'P1' ? '#f59e0b' : '#94a3b8';
+  return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px;font-weight:600">${p}</span>`;
+}
+function statusBadgeHtml(s) {
+  const color = /In Dev/.test(s) ? '#22c55e' : /Refinement|Waiting for Sprint/.test(s) ? '#3884ff' : /Waiting on Breakdown|In Breakdown/.test(s) ? '#f59e0b' : '#94a3b8';
+  return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px">${s}</span>`;
+}
+function compBadgeHtml(c) {
+  const color = c === 'PO / Invoices' ? '#8b5cf6' : '#0ea5e9';
+  return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px">${c}</span>`;
+}
+
+// Sort epics within a column: In Dev / Waiting for Sprint first, then priority ascending
+function sortEpicsForDisplay(epics) {
+  const stageRank = (s) => /In Dev/.test(s) ? 0 : /Waiting for Sprint/.test(s) ? 1 : /Refinement/.test(s) ? 2 : /Breakdown/.test(s) ? 3 : 4;
+  const prioRank = (p) => ({ P0: 0, P1: 1, P2: 2, P3: 3, P4: 4 })[p] ?? 5;
+  return [...epics].sort((a, b) => stageRank(a.status) - stageRank(b.status) || prioRank(a.priority) - prioRank(b.priority));
+}
+
+function epicCardHtml(e) {
+  return `
+    <div style="padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);margin-bottom:8px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+        <a href="${e.url}" target="_blank" style="font-weight:600;font-size:12px;color:var(--accent);text-decoration:none">${e.key}</a>
+        ${priorityBadgeHtml(e.priority)}
+        ${statusBadgeHtml(e.status)}
+      </div>
+      <div style="font-size:13px;line-height:1.35;margin-bottom:6px">${e.summary}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        ${compBadgeHtml(e.component)}
+        <span style="font-size:11px;color:var(--subtle)">${e.assignee}</span>
+      </div>
+    </div>
+  `;
+}
+
 function hydrateRoadmap() {
   const container = document.getElementById('roadmap-columns-container');
   if (!container) return;
   const r = state.roadmap;
   if (!r || !r.columns) return;
+  const visibleColumns = filterAndSortRoadmapColumns(r.columns);
+  const shownCount = visibleColumns.reduce((s, c) => s + c.epic_count, 0);
+  const hiddenCount = (r.totals ? r.totals.total_active_epics : 0) - shownCount;
   const sub = document.getElementById('roadmap-subtitle');
   if (sub && r.totals) {
-    sub.textContent = `Live pull from Jira: ${r.totals.total_active_epics} active epics — ${r.totals.pxf_invoices} on PXF-Invoices, ${r.totals.pxf_invoice_processing} on PXF-Invoice Processing (includes ELI Invoice Entry). Grouped by release cadence parsed from epic summary.`;
+    sub.textContent = `Live pull from Jira: ${shownCount} epics with a firm release commitment (${CURRENT_RELEASE_FLOOR} or later), grouped by release. ${hiddenCount} epics without a parsed release commitment are hidden — when the Business Requested Date field is available live, that becomes the primary filter.`;
   }
-  // Order the columns to put current/near-future first; hide obviously wrong old ones (R4 2024, R1 2026) unless they have content
-  const visibleColumns = r.columns.filter(c => {
-    if (c.release === 'Unspecified' && c.epic_count === 0) return false;
-    return true;
-  });
-  const priorityBadge = (p) => {
-    const color = p === 'P0' ? '#ef4444' : p === 'P1' ? '#f59e0b' : '#94a3b8';
-    return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px;font-weight:600">${p}</span>`;
-  };
-  const statusBadge = (s) => {
-    const color = /In Dev/.test(s) ? '#22c55e' : /Refinement|Waiting for Sprint/.test(s) ? '#3884ff' : /Waiting on Breakdown|In Breakdown/.test(s) ? '#f59e0b' : '#94a3b8';
-    return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px">${s}</span>`;
-  };
-  const compBadge = (c) => {
-    const color = c === 'PO / Invoices' ? '#8b5cf6' : '#0ea5e9';
-    return `<span style="display:inline-block;padding:1px 6px;background:${color}20;color:${color};border-radius:3px;font-size:10px">${c}</span>`;
-  };
   container.innerHTML = visibleColumns.map(col => {
-    const epicsHtml = col.epics.map(e => `
-      <div style="padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);margin-bottom:8px">
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
-          <a href="${e.url}" target="_blank" style="font-weight:600;font-size:12px;color:var(--accent);text-decoration:none">${e.key}</a>
-          ${priorityBadge(e.priority)}
-          ${statusBadge(e.status)}
-        </div>
-        <div style="font-size:13px;line-height:1.35;margin-bottom:6px">${e.summary}</div>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          ${compBadge(e.component)}
-          <span style="font-size:11px;color:var(--subtle)">${e.assignee}</span>
-        </div>
-      </div>
-    `).join('');
+    const sortedEpics = sortEpicsForDisplay(col.epics);
     return `
       <div style="min-width:320px;max-width:320px;background:var(--surface2);border-radius:8px;padding:12px">
         <div style="font-weight:700;font-size:14px;margin-bottom:4px">${col.release}</div>
         <div style="color:var(--subtle);font-size:11px;margin-bottom:12px">${col.epic_count} ${col.epic_count === 1 ? 'epic' : 'epics'}</div>
-        ${epicsHtml}
+        ${sortedEpics.map(epicCardHtml).join('')}
+      </div>
+    `;
+  }).join('');
+}
+
+function hydrateShippingNext() {
+  const container = document.getElementById('shipping-next-container');
+  if (!container) return;
+  const r = state.roadmap;
+  if (!r || !r.columns) return;
+  // Focus tab surfaces just the next two firm releases with a small cap per column
+  const CAP_PER_COLUMN = 5;
+  const visible = filterAndSortRoadmapColumns(r.columns).slice(0, 2);
+  const sub = document.getElementById('shipping-next-subtitle');
+  if (sub && visible.length) {
+    sub.textContent = visible.map(c => c.release).join(' + ') + ' — top epics';
+  }
+  container.innerHTML = visible.map(col => {
+    const sortedEpics = sortEpicsForDisplay(col.epics).slice(0, CAP_PER_COLUMN);
+    const moreCount = Math.max(0, col.epic_count - sortedEpics.length);
+    const moreLink = moreCount > 0
+      ? `<div style="text-align:center;padding:6px 0;font-size:11px;color:var(--subtle)">+${moreCount} more on Roadmap tab</div>`
+      : '';
+    return `
+      <div style="flex:1;min-width:320px;background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">${col.release}</div>
+        <div style="color:var(--subtle);font-size:11px;margin-bottom:12px">${col.epic_count} ${col.epic_count === 1 ? 'epic' : 'epics'} total</div>
+        ${sortedEpics.map(epicCardHtml).join('')}
+        ${moreLink}
       </div>
     `;
   }).join('');
