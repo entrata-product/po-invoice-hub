@@ -142,7 +142,7 @@
       "rejection_rate_pct": 10.3,
       "cs_theme": "Chargeback-heavy \u2014 SECOND-LARGEST CBR client (design partner candidate)",
       "pattern": "chargeback-recovery",
-      "pattern_note": "v3 classifier: 125 of 178 classified rejections are chargeback-recovery (70% dominance) \u2014 SECOND-LARGEST chargeback footprint after Incore. Different vocabulary than Incore: 'upload fmo to show chargeback', 'missing fmo to show previous resident charge back', 'attach fmo to show chargeback for cleaning'. Approvers demand FMO (file move-out / move-out form) documentation attached before approving turn/damage POs. Direct design-partner candidate for CBR + document-attachment epic \u2014 cross-vocabulary validation of the Incore pattern. Deep-dive not yet run."
+      "pattern_note": "[v3 classifier: chargeback-recovery] Deep-dive 2026-07-07 revealed the real pattern is broader \u2014 52% of Rockstar's 946 first-rejections are 'you forgot to attach something' (photos 226 events, FMO/chargeback 264, quotes 125). Volume up 4.1x in 10 months (348\u21921,410 POs/mo). User 75945 = CBR gatekeeper (58% of their 350 rejections are FMO/chargeback). Turn contractors show 37-66% CBR concentration (Pro-Tex, Real Floors, PCS, JNM, Majestic). 10 of 22 properties actively run chargeback; the other 12 don't \u2014 validation needs property-level opt-in (same lesson as Incore). Cross-vocabulary validation of Incore's CBR pattern. STRONG DESIGN PARTNER \u2014 scaling client, two natural champions (75945 for CBR, 75971 for photos/quotes). See knowledge/csm-quick-wins/rockstar-capital/."
     },
     {
       "rank": 11,
