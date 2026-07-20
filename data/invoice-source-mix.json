@@ -1,6 +1,13 @@
 {
-  "_schema": "Invoice source_channel mix. From invoice_core_dataset. 14 channels incl. ELI Invoice Entry (3), IPS (4).",
-  "_status": "placeholder",
-  "_provisional": true,
+  "_schema": "Invoice source_channel distribution, last 12 months.",
+  "_status": "pending",
+  "_pending_reason": "Awaiting Redshift refresh — see invoice-kpis.json._pending_reason.",
+  "_notes": [
+    "Source: queries/invoice-monthly-kpis.redshift.sql (DEV-253879).",
+    "Channels 'Dashboard Shortcut' and 'Duplicate / Use Previous' will never appear (no source field/log)."
+  ],
+  "as_of": null,
+  "window": "last_12_months",
+  "total_invoices_in_window": null,
   "sources": []
 }

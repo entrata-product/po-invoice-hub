@@ -1,7 +1,14 @@
 {
-  "_schema": "Invoice adoption slice: client segment + release track. From invoice_core_dataset.",
-  "_status": "placeholder",
-  "_provisional": true,
-  "by_segment": { "Enterprise": null, "Mid-Market": null, "Small": null },
-  "by_release_track": { "Rapid": null, "Standard": null }
+  "_schema": "Invoice adoption slices (client_segment + client_release_track), last 12 months.",
+  "_status": "pending",
+  "_pending_reason": "Awaiting Redshift refresh — see invoice-kpis.json._pending_reason.",
+  "_notes": [
+    "Source: queries/invoice-monthly-kpis.redshift.sql (DEV-253879).",
+    "release_track will remain 'Unknown' until DBRE mirrors clients.details.cluster_id to Redshift."
+  ],
+  "as_of": null,
+  "window": "last_12_months",
+  "total_invoices_in_window": null,
+  "by_segment": [],
+  "by_release_track": []
 }

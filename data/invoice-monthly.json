@@ -1,6 +1,10 @@
 {
-  "_schema": "Monthly invoice volume. Derived from invoice_core_dataset. GROUP BY creation_month.",
-  "_status": "placeholder",
-  "_provisional": true,
+  "_schema": "Monthly invoice volume, dollar total, and lower-bound active-client count. Trailing 24 months.",
+  "_status": "pending",
+  "_pending_reason": "Awaiting Redshift refresh — see invoice-kpis.json._pending_reason.",
+  "_notes": [
+    "Source: queries/invoice-monthly-kpis.redshift.sql (DEV-253879)."
+  ],
+  "as_of": null,
   "months": []
 }

@@ -1,17 +1,37 @@
 {
-  "_schema": "Invoice KPIs from DEV-253879. PROVISIONAL — invoice_audit_log and source_id mapping unresolved.",
-  "_status": "placeholder",
-  "_provisional": true,
-  "window": "trailing_30_days",
-  "kpis": {
-    "total_invoices_created": null,
-    "active_clients_using_invoices": null,
-    "avg_end_to_end_processing_days": null,
-    "first_time_right_rate_pct": null,
-    "early_pay_discount_capture_dollars": null,
-    "po_to_invoice_cycle_days": null,
-    "rejection_reroute_rate_pct": null,
-    "user_penetration_rate_pct": null,
-    "pdf_attachment_rate_pct": null
+  "_schema": "Invoice headline KPIs (portfolio-wide) — trailing 30d / 90d / 12mo windows anchored on the latest month in the input.",
+  "_status": "pending",
+  "_pending_reason": "Redshift AWS session token expired; awaiting refresh before running queries/invoice-monthly-kpis.redshift.sql. Once refreshed: run via MCP, save output to /tmp/invoice-agg.json, run scripts/build_invoice_kpis.py /tmp/invoice-agg.json.",
+  "_notes": [
+    "Source: queries/invoice-monthly-kpis.redshift.sql (Redshift-adapted from Pallavi Nawale's Dataset 1 attached to Jira DEV-253879, 2026-07-20)."
+  ],
+  "as_of": null,
+  "anchor_month": null,
+  "totals": {
+    "total_invoices": null,
+    "total_amount_usd": null,
+    "ftr_denom": null,
+    "ftr_count": null,
+    "ftr_rate_pct": null,
+    "touchless_denom": null,
+    "touchless_count": null,
+    "touchless_rate_pct": null,
+    "rejected_count": null,
+    "total_rejection_events": null,
+    "rejection_rate_pct": null,
+    "avg_days_to_posted": null
+  },
+  "window_30d": {
+    "invoices_created": null,
+    "total_amount_usd": null,
+    "active_clients_min": null
+  },
+  "window_90d": {
+    "invoices_created": null,
+    "total_amount_usd": null
+  },
+  "window_12mo": {
+    "invoices_created": null,
+    "total_amount_usd": null
   }
 }

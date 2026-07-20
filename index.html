@@ -764,16 +764,26 @@ function setStatItem(strip, index, value, label) {
 function hydrate() {
   updateRefreshDates();
   hydrateFocusStrip();
+  hydrateInvoiceFocusStrip();
   hydrateAdvancedOverview();
+  hydrateInvoiceAdvancedOverview();
   hydratePoRow();
+  hydrateInvoiceRow();
   hydrateAdoption();
+  hydrateInvoiceAdoption();
   hydratePoMonthlyChart();
+  hydrateInvoiceSourceMixChart();
   hydrateHealthPoKpis();
   hydrateHealthPoTrend();
   hydrateRejectionReasons();
   hydrateCsClientsTable();
   hydrateRoadmap();
   hydrateShippingNext();
+}
+
+function invoiceKpisLive() {
+  const k = state.invoiceKpis;
+  return !!(k && k.totals && k.totals.total_invoices !== null && k.totals.total_invoices !== undefined);
 }
 
 function setKpiCard(root, kpi, value) {
@@ -1254,28 +1264,197 @@ function hydratePoMonthlyChart() {
   const ctx = document.getElementById('po-monthly-chart');
   if (!ctx || typeof Chart === 'undefined') return;
   const labels = m.months.map(x => x.ym);
-  const counts = m.months.map(x => x.po_count);
-  const gmv = m.months.map(x => x.gmv_capped_usd);
+  const poCounts = m.months.map(x => x.po_count);
+
+  const datasets = [
+    { label: 'PO count', data: poCounts, backgroundColor: 'rgba(56,132,255,0.7)', yAxisID: 'y' },
+  ];
+
+  const inv = state.invoiceMonthly;
+  if (inv && Array.isArray(inv.months) && inv.months.length > 0) {
+    const invByYm = Object.fromEntries(inv.months.map(x => [x.ym, x.invoice_count]));
+    const invCounts = labels.map(ym => (invByYm[ym] === undefined ? null : invByYm[ym]));
+    datasets.push({
+      label: 'Invoice count',
+      data: invCounts,
+      type: 'line',
+      borderColor: '#f59e0b',
+      backgroundColor: '#f59e0b',
+      yAxisID: 'y',
+      tension: 0.3,
+      pointRadius: 2,
+      spanGaps: true,
+    });
+  } else {
+    // Fall back to the original GMV line when invoice data isn't ready yet.
+    const gmv = m.months.map(x => x.gmv_capped_usd);
+    datasets.push({
+      label: 'GMV (USD, capped)',
+      data: gmv,
+      type: 'line',
+      borderColor: '#22c55e',
+      backgroundColor: '#22c55e',
+      yAxisID: 'y1',
+      tension: 0.3,
+      pointRadius: 2,
+    });
+  }
+
+  const hasSecondAxis = datasets.some(d => d.yAxisID === 'y1');
   new Chart(ctx, {
     type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'PO count', data: counts, backgroundColor: 'rgba(56,132,255,0.7)', yAxisID: 'y' },
-        { label: 'GMV (USD, capped)', data: gmv, type: 'line', borderColor: '#22c55e', backgroundColor: '#22c55e', yAxisID: 'y1', tension: 0.3, pointRadius: 2 },
-      ],
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      scales: {
-        y: { position: 'left', ticks: { callback: v => fmtNum(v) } },
-        y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => fmtUsd(v) } },
-      },
+      scales: Object.assign(
+        { y: { position: 'left', ticks: { callback: v => fmtNum(v) } } },
+        hasSecondAxis
+          ? { y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => fmtUsd(v) } } }
+          : {}
+      ),
       plugins: {
         legend: { position: 'bottom', labels: { font: { size: 11 } } },
         tooltip: { callbacks: { label: c => c.dataset.label + ': ' + (c.dataset.yAxisID === 'y1' ? fmtUsd(c.raw) : fmtNum(c.raw)) } },
+      },
+    },
+  });
+}
+
+/* =============================================================================
+   Invoice hydrators
+   Source: data/invoice-kpis.json, data/invoice-monthly.json, data/invoice-source-mix.json,
+   data/invoice-adoption.json — populated by scripts/build_invoice_kpis.py from
+   queries/invoice-monthly-kpis.redshift.sql (Pallavi's Dataset 1, DEV-253879).
+   ============================================================================= */
+
+function hydrateInvoiceFocusStrip() {
+  const strip = document.getElementById('focus-overview-strip');
+  if (!strip) return;
+  const k = state.invoiceKpis;
+  if (!k) return;
+  // Position 1: Invoices Created (30d) — replaces the hardcoded '—' set by hydrateFocusStrip.
+  if (k.window_30d && k.window_30d.invoices_created !== null && k.window_30d.invoices_created !== undefined) {
+    setFocusKpi(strip, 1, fmtNum(k.window_30d.invoices_created), 'Invoices Created (30d)');
+  }
+  // Position 3: Touchless Invoices — use trailing 12mo rate (aligns with the PO tile that uses 12mo).
+  if (k.totals && k.totals.touchless_rate_pct !== null && k.totals.touchless_rate_pct !== undefined) {
+    setFocusKpi(strip, 3, fmtPct(k.totals.touchless_rate_pct), 'Touchless (Invoice, 12mo)');
+  }
+}
+
+function hydrateInvoiceAdvancedOverview() {
+  const strip = document.getElementById('overview-kpis');
+  if (!strip) return;
+  const k = state.invoiceKpis;
+  if (!k) return;
+  // Position 1: Invoices Created (30d)
+  if (k.window_30d && k.window_30d.invoices_created !== null && k.window_30d.invoices_created !== undefined) {
+    setStatItem(strip, 1, fmtNum(k.window_30d.invoices_created), 'Invoices Created (30d)');
+  }
+  // Position 3: Repurpose from "Avg Days to Approve" (PO term) to Invoice avg days-to-post
+  if (k.totals && k.totals.avg_days_to_posted !== null && k.totals.avg_days_to_posted !== undefined) {
+    setStatItem(strip, 3, k.totals.avg_days_to_posted.toFixed(1) + 'd', 'Avg Days to Post (Invoice)');
+  }
+}
+
+function hydrateInvoiceRow() {
+  const tbody = document.getElementById('overview-products-tbody');
+  if (!tbody) return;
+  const k = state.invoiceKpis;
+  if (!k || !k.totals) return;
+  const rows = tbody.querySelectorAll('tr');
+  // The Invoice row is the 2nd row per the static markup.
+  const invoiceRow = rows[1];
+  if (!invoiceRow) return;
+  const t = k.totals;
+  const w = k.window_30d || {};
+  const status = invoiceKpisLive() ? '<span class="status-badge s-good">Live</span>' : '<span class="status-badge s-warn">Pending</span>';
+  invoiceRow.innerHTML = `
+    <td><strong>Invoices</strong></td>
+    <td style="text-align:right">${fmtNum(w.active_clients_min)}</td>
+    <td style="text-align:right">${fmtNum(w.invoices_created)}</td>
+    <td style="text-align:right">${t.avg_days_to_posted !== null && t.avg_days_to_posted !== undefined ? t.avg_days_to_posted.toFixed(1) + 'd' : '—'}</td>
+    <td style="text-align:right">${fmtPct(t.ftr_rate_pct)}</td>
+    <td style="text-align:right">${fmtPct(t.rejection_rate_pct)}</td>
+    <td>${status}</td>
+  `;
+}
+
+function hydrateInvoiceAdoption() {
+  const k = state.invoiceAdoption;
+  if (!k || !Array.isArray(k.by_segment) || k.by_segment.length === 0) return;
+  // Invoice segment mix is the 2nd card in Adoption tab's grid-2 block.
+  const cards = document.querySelectorAll('#tab-adoption .grid-2 .card');
+  const container = cards[1];
+  if (!container) return;
+  const inner = container.querySelector('div[style*="min-height"]');
+  if (!inner) return;
+  const total = k.total_invoices_in_window || k.by_segment.reduce((s, x) => s + (x.invoice_count || 0), 0);
+  const rows = k.by_segment
+    .filter(s => s.segment !== 'Unknown')
+    .map(s => {
+      const pct = s.pct !== null && s.pct !== undefined ? s.pct : (total ? (100 * s.invoice_count / total) : 0);
+      return `
+        <div style="display:grid;grid-template-columns:120px 1fr 90px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)">
+          <div><strong>${s.segment}</strong></div>
+          <div style="background:var(--surface2);border-radius:4px;height:8px;position:relative;overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;background:var(--accent);width:${Math.min(100, pct)}%"></div>
+          </div>
+          <div style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(s.invoice_count)}</div>
+        </div>
+      `;
+    }).join('');
+  const footer = `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--line);color:var(--subtle);font-size:12px">Trailing 12 months: ${fmtNum(total)} invoices across ${k.by_segment.length} segment${k.by_segment.length === 1 ? '' : 's'}.</div>`;
+  inner.outerHTML = `<div style="width:100%;padding:4px 0">${rows}${footer}</div>`;
+}
+
+function hydrateInvoiceSourceMixChart() {
+  const sm = state.invoiceSourceMix;
+  if (!sm || !Array.isArray(sm.sources) || sm.sources.length === 0) return;
+  // The channel-mix chart is the 2nd chart-card in Overview.
+  const cards = document.querySelectorAll('#tab-overview .chart-card');
+  const target = cards[1];
+  if (!target) return;
+  const inner = target.querySelector('div[style*="min-height"]');
+  if (!inner) return;
+  inner.outerHTML = '<canvas id="invoice-source-chart" style="max-height:300px"></canvas>';
+  const ctx = document.getElementById('invoice-source-chart');
+  if (!ctx || typeof Chart === 'undefined') return;
+
+  // Show top 8 by count, group the rest as "Other" to keep the chart legible.
+  const top = sm.sources.slice(0, 8);
+  const rest = sm.sources.slice(8);
+  const restCount = rest.reduce((s, x) => s + (x.invoice_count || 0), 0);
+  const labels = top.map(x => x.source);
+  const data = top.map(x => x.invoice_count);
+  if (restCount > 0) {
+    labels.push(`Other (${rest.length} channels)`);
+    data.push(restCount);
+  }
+
+  const palette = ['#3884ff', '#f59e0b', '#22c55e', '#a855f7', '#ef4444', '#14b8a6', '#eab308', '#64748b', '#94a3b8'];
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data, backgroundColor: palette.slice(0, labels.length) }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          callbacks: {
+            label: c => {
+              const total = c.dataset.data.reduce((s, x) => s + x, 0);
+              const pct = total ? (100 * c.raw / total).toFixed(1) : '0';
+              return `${c.label}: ${fmtNum(c.raw)}  (${pct}%)`;
+            },
+          },
+        },
       },
     },
   });
