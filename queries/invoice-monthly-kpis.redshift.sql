@@ -27,8 +27,17 @@
    mix, (d) segment breakdown.
 
    INHERITED CAVEATS: see invoice-core-dataset.redshift.sql header (routing gap,
-   ELI array-branch drop, no is_exception, no reroute count, dashboard-shortcut
-   source unknown).
+   no is_exception, no reroute count, dashboard-shortcut source unknown).
+
+   MIRROR-GAP CAVEATS discovered 2026-07-20 when running against the Redshift
+   mirror:
+     - invoice_plus_file_processors is NOT mirrored to entrata_entrata.
+     - invoice_plus_batches.ap_header_ids column is NOT present in the mirror.
+   Neither ELI detection path (direct link or batch-array) works today. The
+   invoice_plus_linked CTE is removed and source_channel buckets 'ELI Invoice
+   Entry' + 'Bulk Invoice Entry' will never fire. Those invoices fall through
+   to Add Invoice (Manual) / API / App User based on created_by. Restore once
+   DBRE mirrors either signal.
    ===================================================================================== */
 
 WITH
@@ -64,20 +73,16 @@ client_units AS (
     GROUP BY p.cid
 ),
 
-invoice_plus_linked AS (
-    SELECT
-        ipfp.cid,
-        ipfp.ap_header_id,
-        BOOL_OR(COALESCE(ipb.is_ai_processed, false)) AS is_ai_processed
-    FROM entrata_entrata.invoice_plus_file_processors ipfp
-    INNER JOIN live_invoices li
-        ON li.cid = ipfp.cid AND li.id = ipfp.ap_header_id
-    LEFT JOIN entrata_entrata.invoice_plus_batches ipb
-        ON ipb.cid = ipfp.cid
-       AND ipb.id = ipfp.invoice_plus_batch_id
-    WHERE ipfp.ap_header_id IS NOT NULL
-    GROUP BY ipfp.cid, ipfp.ap_header_id
-),
+/* ELI (invoice_plus) detection: DISABLED against the Redshift mirror.
+   Two mirror gaps discovered 2026-07-20:
+     - invoice_plus_file_processors table is NOT mirrored to entrata_entrata.
+     - invoice_plus_batches.ap_header_ids array column is NOT mirrored
+       (only id, cid, property_id, is_ai_processed, batch metadata are present).
+   Both signals are required to link a specific invoice to an ELI batch.
+   Result: 'ELI Invoice Entry' and 'Bulk Invoice Entry' source_channel buckets
+   never fire; those invoices fall through to Add Invoice (Manual) / API / App
+   User branches based on created_by. Restore once DBRE mirrors the link table
+   or the ap_header_ids array. */
 
 invoice_imported AS (
     SELECT DISTINCT
@@ -173,8 +178,8 @@ invoice_facts AS (
             WHEN h.template_ap_header_id IS NOT NULL AND h.created_by = 16 THEN 'Recurring Transaction'
             WHEN h.template_ap_header_id IS NOT NULL                THEN 'Invoice Template'
             WHEN imp.ap_header_id IS NOT NULL OR COALESCE(h.is_initial_import, false) = true THEN 'Invoice Import'
-            WHEN COALESCE(ipl.is_ai_processed, false) = true        THEN 'ELI Invoice Entry'
-            WHEN ipl.ap_header_id IS NOT NULL                       THEN 'Bulk Invoice Entry'
+            /* ELI Invoice Entry / Bulk Invoice Entry branches disabled — see
+               header note above the CTEs. */
             WHEN h.ap_batch_id IS NOT NULL                          THEN 'Old Bulk Invoice Entry'
             WHEN cfp.ap_header_id IS NOT NULL                       THEN 'Purchase Orders: Create Invoice'
             WHEN cu_api.id IS NOT NULL                              THEN 'API'
@@ -236,8 +241,6 @@ invoice_facts AS (
         ON lc.cid = h.cid
     LEFT JOIN client_units cu_units
         ON cu_units.cid = h.cid
-    LEFT JOIN invoice_plus_linked ipl
-        ON ipl.cid = h.cid AND ipl.ap_header_id = h.id
     LEFT JOIN invoice_imported imp
         ON imp.cid = h.cid AND imp.ap_header_id = h.id
     LEFT JOIN created_from_po cfp
@@ -278,8 +281,15 @@ SELECT
     SUM(CASE WHEN rejection_count > 0 THEN 1 ELSE 0 END)        AS rejected_count,
     SUM(rejection_count)                                        AS total_rejection_events,
 
+    /* Emit both AVG and the underlying SUM + non-null COUNT so that when
+       results are chunked (e.g. 3-month slices to fit MCP timeout), the
+       transformer can compute a correct weighted average across chunks. */
     AVG(days_to_posted)                                         AS avg_days_to_posted,
-    MEDIAN(days_to_posted)                                      AS median_days_to_posted,
+    SUM(days_to_posted)                                         AS days_to_posted_sum,
+    SUM(CASE WHEN days_to_posted IS NOT NULL THEN 1 ELSE 0 END) AS days_to_posted_denom,
+    /* MEDIAN(days_to_posted) removed: Redshift disallows LISTAGG/PERCENTILE_CONT/
+       MEDIAN aggregates in the same SELECT as COUNT(DISTINCT ...). Compute
+       portfolio median with a separate query if needed. */
 
     COUNT(DISTINCT client_id)                                   AS active_clients
 

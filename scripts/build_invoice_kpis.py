@@ -7,10 +7,21 @@ Reads a raw aggregation result from queries/invoice-monthly-kpis.redshift.sql
 files consumed by index.html.
 
 USAGE:
-    # 1) Run the aggregation query via the Redshift MCP and save the result:
-    #    (in Cursor)  redshift_query with sql = queries/invoice-monthly-kpis.redshift.sql
-    #                 -> save the JSON output to /tmp/invoice-agg.json
-    # 2) python3 scripts/build_invoice_kpis.py /tmp/invoice-agg.json
+    # 1) Run the aggregation query via the Redshift MCP. If MCP times out on a
+    #    full 12-month scan, chunk into 3-month slices (see queries/
+    #    invoice-monthly-kpis.redshift.sql header). Save each chunk's JSON:
+    #      /tmp/invoice-agg/chunk_a_recent3mo.json   (>= -3 months)
+    #      /tmp/invoice-agg/chunk_b_m6_m3.json       (-6 .. -3 months)
+    #      /tmp/invoice-agg/chunk_c_m9_m6.json       (-9 .. -6 months)
+    #      /tmp/invoice-agg/chunk_d_m12_m9.json      (-12 .. -9 months)
+    # 2) Pass all chunks (or a single portfolio-wide file):
+    #      python3 scripts/build_invoice_kpis.py /tmp/invoice-agg/*.json
+    #
+    # DATEADD boundaries are day-aligned (not month-aligned), so the boundary
+    # months (e.g. 2026-04) will appear in TWO consecutive chunks each holding
+    # a partial slice. The transformer sums the (creation_month × ... ) rows
+    # across chunks so full-month totals are preserved. Weighted averages use
+    # days_to_posted_sum / days_to_posted_denom, not per-chunk AVG.
 
 INPUT SHAPE (expected from Redshift MCP):
     {
@@ -69,44 +80,111 @@ SHARED_NOTES = [
     "Live-client scope only (clients.company_status_type_id = 4). Test / demo / template clients excluded.",
     "Rapid vs Standard release-track split is NULL: the details JSONB column isn't mirrored to Redshift. Restore once DBRE surfaces cluster_id.",
     "is_first_time_right does NOT deduct for reroutes (per Pallavi's caveat — reroute events can't be counted for multi-property invoices).",
-    "ELI detection excludes the batch-array fallback branch (Redshift array UNNEST limitation). May under-count ELI adoption for invoices linked only via invoice_plus_batches; refresh once mirror supports SUPER unnest.",
+    "ELI Invoice Entry / Bulk Invoice Entry source channels never fire: neither invoice_plus_file_processors nor invoice_plus_batches.ap_header_ids are mirrored to Redshift (discovered 2026-07-20). Those invoices fall through to Add Invoice (Manual) / API / App User based on created_by.",
     "'Dashboard Shortcut' and 'Duplicate / Use Previous' source channels are inherently untrackable (no field or log).",
     "rejection_category counts appear only when rejection_count > 0. Non-rejected invoices carry category = 'NONE'.",
+    "Portfolio 12-month scan is executed via 4 x 3-month DATEADD-based chunks (MCP timeout constraint). Chunk boundaries are day-aligned, so boundary months appear in two chunks and are summed by the transformer.",
 ]
 
 
-def load_agg(path: Path) -> list[dict[str, Any]]:
-    with path.open() as f:
-        raw = json.load(f)
-    if isinstance(raw, dict):
-        rows = raw.get("rows") or raw.get("data") or raw.get("results")
-        if rows is None:
-            raise SystemExit(
-                "Input JSON has no 'rows' / 'data' / 'results' key. "
-                "Expected either a list or an object containing one."
-            )
-    elif isinstance(raw, list):
-        rows = raw
-    else:
-        raise SystemExit(f"Unexpected input type: {type(raw)}")
-    # Coerce numeric fields (MCP sometimes returns them as strings)
-    numeric_fields = {
-        "invoice_count", "total_amount", "ftr_denom", "ftr_count",
-        "touchless_denom", "touchless_count", "rejected_count",
-        "total_rejection_events", "avg_days_to_posted",
-        "median_days_to_posted", "active_clients",
-    }
+FLOAT_FIELDS = {"total_amount", "avg_days_to_posted", "days_to_posted_sum"}
+INT_FIELDS = {
+    "invoice_count", "ftr_denom", "ftr_count",
+    "touchless_denom", "touchless_count", "rejected_count",
+    "total_rejection_events", "days_to_posted_denom", "active_clients",
+}
+
+
+def _coerce(rows: list[dict[str, Any]]) -> None:
     for r in rows:
-        for k in numeric_fields:
+        for k in FLOAT_FIELDS:
             if k in r and r[k] is not None:
                 try:
-                    r[k] = float(r[k]) if k in {
-                        "total_amount", "avg_days_to_posted",
-                        "median_days_to_posted"
-                    } else int(float(r[k]))
+                    r[k] = float(r[k])
                 except (TypeError, ValueError):
                     r[k] = None
-    return rows
+        for k in INT_FIELDS:
+            if k in r and r[k] is not None:
+                try:
+                    r[k] = int(float(r[k]))
+                except (TypeError, ValueError):
+                    r[k] = None
+
+
+def load_agg(paths: list[Path]) -> list[dict[str, Any]]:
+    """Load one or more MCP output JSONs and merge rows on the group key.
+
+    Group key is (creation_month, client_release_track, client_segment,
+    source_channel, rejection_category). All count / sum columns are added.
+    active_clients uses MAX (a lower-bound estimate; distinct-client precision
+    requires a separate query per Pallavi's dataset design).
+    """
+    all_rows: list[dict[str, Any]] = []
+    for path in paths:
+        with path.open() as f:
+            raw = json.load(f)
+        if isinstance(raw, dict):
+            rows = raw.get("rows") or raw.get("data") or raw.get("results")
+            if rows is None:
+                raise SystemExit(
+                    f"{path}: input JSON has no 'rows' / 'data' / 'results' key."
+                )
+        elif isinstance(raw, list):
+            rows = raw
+        else:
+            raise SystemExit(f"{path}: unexpected input type {type(raw)}")
+        _coerce(rows)
+        all_rows.extend(rows)
+
+    def keyof(r: dict[str, Any]) -> tuple:
+        return (
+            r.get("creation_month"),
+            r.get("client_release_track"),
+            r.get("client_segment"),
+            r.get("source_channel"),
+            r.get("rejection_category"),
+        )
+
+    merged: dict[tuple, dict[str, Any]] = {}
+    sum_int_keys = [
+        "invoice_count", "ftr_denom", "ftr_count",
+        "touchless_denom", "touchless_count", "rejected_count",
+        "total_rejection_events", "days_to_posted_denom",
+    ]
+    sum_float_keys = ["total_amount", "days_to_posted_sum"]
+
+    for r in all_rows:
+        k = keyof(r)
+        if k not in merged:
+            merged[k] = {
+                "creation_month": r.get("creation_month"),
+                "client_release_track": r.get("client_release_track"),
+                "client_segment": r.get("client_segment"),
+                "source_channel": r.get("source_channel"),
+                "rejection_category": r.get("rejection_category"),
+                "active_clients": 0,
+            }
+            for key in sum_int_keys:
+                merged[k][key] = 0
+            for key in sum_float_keys:
+                merged[k][key] = 0.0
+        m = merged[k]
+        for key in sum_int_keys:
+            m[key] += r.get(key) or 0
+        for key in sum_float_keys:
+            m[key] += r.get(key) or 0.0
+        ac = r.get("active_clients") or 0
+        if ac > m["active_clients"]:
+            m["active_clients"] = ac
+
+    # Recompute avg_days_to_posted from sum/denom (exact weighted mean).
+    for m in merged.values():
+        denom = m.get("days_to_posted_denom") or 0
+        m["avg_days_to_posted"] = (
+            round(m["days_to_posted_sum"] / denom, 2) if denom else None
+        )
+
+    return list(merged.values())
 
 
 def rate(numer: float | int | None, denom: float | int | None) -> float | None:
@@ -203,15 +281,9 @@ def build_kpis(rows: list[dict[str, Any]], monthly: dict[str, Any]) -> dict[str,
     rejected_count = sum((r.get("rejected_count") or 0) for r in rows)
     total_rejection_events = sum((r.get("total_rejection_events") or 0) for r in rows)
     total_invoices = sum((r.get("invoice_count") or 0) for r in rows)
-    # Weighted avg days-to-posted across rows (weight by invoice_count).
-    weighted_days_num = 0.0
-    weighted_days_denom = 0
-    for r in rows:
-        avg = r.get("avg_days_to_posted")
-        cnt = r.get("invoice_count") or 0
-        if avg is not None and cnt:
-            weighted_days_num += avg * cnt
-            weighted_days_denom += cnt
+    # Exact weighted mean days-to-posted from the underlying sum + non-null count.
+    weighted_days_num = sum((r.get("days_to_posted_sum") or 0.0) for r in rows)
+    weighted_days_denom = sum((r.get("days_to_posted_denom") or 0) for r in rows)
     avg_days_to_posted = (
         round(weighted_days_num / weighted_days_denom, 2)
         if weighted_days_denom else None
@@ -384,19 +456,22 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("input", type=Path,
-                   help="Path to the Redshift MCP output JSON (from queries/invoice-monthly-kpis.redshift.sql)")
+    p.add_argument("inputs", type=Path, nargs="+",
+                   help="One or more Redshift MCP output JSON files (from queries/invoice-monthly-kpis.redshift.sql). If multiple, the rows are merged on the group key (creation_month × release_track × segment × source × rejection_category) with summed counts.")
     p.add_argument("--data-dir", type=Path, default=DATA_DIR,
                    help="Override output data directory (default: repo data/)")
     args = p.parse_args(argv)
 
-    if not args.input.exists():
-        print(f"ERROR: input file not found: {args.input}", file=sys.stderr)
+    missing = [str(x) for x in args.inputs if not x.exists()]
+    if missing:
+        print(f"ERROR: input files not found: {missing}", file=sys.stderr)
         return 1
 
-    print(f"reading  {args.input}")
-    rows = load_agg(args.input)
-    print(f"loaded  {len(rows):,} rows")
+    print(f"reading  {len(args.inputs)} input file(s)")
+    for x in args.inputs:
+        print(f"  - {x}")
+    rows = load_agg(args.inputs)
+    print(f"merged  {len(rows):,} unique group rows")
 
     print("building  invoice-monthly.json")
     monthly = build_monthly(rows)

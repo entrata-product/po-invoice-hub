@@ -1,14 +1,52 @@
 {
   "_schema": "Invoice adoption slices (client_segment + client_release_track), last 12 months.",
-  "_status": "pending",
-  "_pending_reason": "Awaiting Redshift refresh — see invoice-kpis.json._pending_reason.",
+  "_status": "live",
   "_notes": [
-    "Source: queries/invoice-monthly-kpis.redshift.sql (DEV-253879).",
-    "release_track will remain 'Unknown' until DBRE mirrors clients.details.cluster_id to Redshift."
+    "Source: queries/invoice-monthly-kpis.redshift.sql (Redshift-adapted from Pallavi Nawale's Dataset 1 attached to Jira DEV-253879, 2026-07-20).",
+    "Live-client scope only (clients.company_status_type_id = 4). Test / demo / template clients excluded.",
+    "Rapid vs Standard release-track split is NULL: the details JSONB column isn't mirrored to Redshift. Restore once DBRE surfaces cluster_id.",
+    "is_first_time_right does NOT deduct for reroutes (per Pallavi's caveat \u2014 reroute events can't be counted for multi-property invoices).",
+    "ELI Invoice Entry / Bulk Invoice Entry source channels never fire: neither invoice_plus_file_processors nor invoice_plus_batches.ap_header_ids are mirrored to Redshift (discovered 2026-07-20). Those invoices fall through to Add Invoice (Manual) / API / App User based on created_by.",
+    "'Dashboard Shortcut' and 'Duplicate / Use Previous' source channels are inherently untrackable (no field or log).",
+    "rejection_category counts appear only when rejection_count > 0. Non-rejected invoices carry category = 'NONE'.",
+    "Portfolio 12-month scan is executed via 4 x 3-month DATEADD-based chunks (MCP timeout constraint). Chunk boundaries are day-aligned, so boundary months appear in two chunks and are summed by the transformer.",
+    "'Unknown' release_track is the norm today (cluster_id JSONB not mirrored). Rapid vs Standard split will populate once DBRE surfaces cluster_id."
   ],
-  "as_of": null,
+  "as_of": "2026-07-20",
   "window": "last_12_months",
-  "total_invoices_in_window": null,
-  "by_segment": [],
-  "by_release_track": []
+  "total_invoices_in_window": 18271043,
+  "by_segment": [
+    {
+      "segment": "Enterprise",
+      "invoice_count": 17920626,
+      "active_clients_min": 488,
+      "pct": 98.1
+    },
+    {
+      "segment": "Mid-Market",
+      "invoice_count": 296391,
+      "active_clients_min": 144,
+      "pct": 1.6
+    },
+    {
+      "segment": "Small",
+      "invoice_count": 53794,
+      "active_clients_min": 38,
+      "pct": 0.3
+    },
+    {
+      "segment": "Unknown",
+      "invoice_count": 232,
+      "active_clients_min": 1,
+      "pct": 0.0
+    }
+  ],
+  "by_release_track": [
+    {
+      "release_track": "Unknown",
+      "invoice_count": 18271043,
+      "active_clients_min": 488,
+      "pct": 100.0
+    }
+  ]
 }

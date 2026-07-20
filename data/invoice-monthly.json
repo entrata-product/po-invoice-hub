@@ -1,10 +1,97 @@
 {
   "_schema": "Monthly invoice volume, dollar total, and lower-bound active-client count. Trailing 24 months.",
-  "_status": "pending",
-  "_pending_reason": "Awaiting Redshift refresh — see invoice-kpis.json._pending_reason.",
+  "_status": "live",
   "_notes": [
-    "Source: queries/invoice-monthly-kpis.redshift.sql (DEV-253879)."
+    "Source: queries/invoice-monthly-kpis.redshift.sql (Redshift-adapted from Pallavi Nawale's Dataset 1 attached to Jira DEV-253879, 2026-07-20).",
+    "Live-client scope only (clients.company_status_type_id = 4). Test / demo / template clients excluded.",
+    "Rapid vs Standard release-track split is NULL: the details JSONB column isn't mirrored to Redshift. Restore once DBRE surfaces cluster_id.",
+    "is_first_time_right does NOT deduct for reroutes (per Pallavi's caveat \u2014 reroute events can't be counted for multi-property invoices).",
+    "ELI Invoice Entry / Bulk Invoice Entry source channels never fire: neither invoice_plus_file_processors nor invoice_plus_batches.ap_header_ids are mirrored to Redshift (discovered 2026-07-20). Those invoices fall through to Add Invoice (Manual) / API / App User based on created_by.",
+    "'Dashboard Shortcut' and 'Duplicate / Use Previous' source channels are inherently untrackable (no field or log).",
+    "rejection_category counts appear only when rejection_count > 0. Non-rejected invoices carry category = 'NONE'.",
+    "Portfolio 12-month scan is executed via 4 x 3-month DATEADD-based chunks (MCP timeout constraint). Chunk boundaries are day-aligned, so boundary months appear in two chunks and are summed by the transformer.",
+    "clients_active_min is a lower-bound (max across (segment \u00d7 channel \u00d7 category) slices for the month). Distinct-client counts exact figures can be added via a separate aggregate query."
   ],
-  "as_of": null,
-  "months": []
+  "as_of": "2026-07-20",
+  "months": [
+    {
+      "ym": "2025-07",
+      "invoice_count": 631349,
+      "total_amount_usd": -86325692.73,
+      "clients_active_min": 436
+    },
+    {
+      "ym": "2025-08",
+      "invoice_count": 1741971,
+      "total_amount_usd": 120396883.2,
+      "clients_active_min": 450
+    },
+    {
+      "ym": "2025-09",
+      "invoice_count": 1606561,
+      "total_amount_usd": 68397846.77,
+      "clients_active_min": 453
+    },
+    {
+      "ym": "2025-10",
+      "invoice_count": 1607419,
+      "total_amount_usd": -177009785.51,
+      "clients_active_min": 453
+    },
+    {
+      "ym": "2025-11",
+      "invoice_count": 1338018,
+      "total_amount_usd": 29369736.36,
+      "clients_active_min": 454
+    },
+    {
+      "ym": "2025-12",
+      "invoice_count": 1555447,
+      "total_amount_usd": -3641781.44,
+      "clients_active_min": 458
+    },
+    {
+      "ym": "2026-01",
+      "invoice_count": 1485835,
+      "total_amount_usd": -177971884.89,
+      "clients_active_min": 460
+    },
+    {
+      "ym": "2026-02",
+      "invoice_count": 1447119,
+      "total_amount_usd": -34032214.49,
+      "clients_active_min": 466
+    },
+    {
+      "ym": "2026-03",
+      "invoice_count": 1646225,
+      "total_amount_usd": -26554031.65,
+      "clients_active_min": 473
+    },
+    {
+      "ym": "2026-04",
+      "invoice_count": 1602965,
+      "total_amount_usd": 364806179.35,
+      "clients_active_min": 473
+    },
+    {
+      "ym": "2026-05",
+      "invoice_count": 1532692,
+      "total_amount_usd": -117175091.63,
+      "clients_active_min": 480
+    },
+    {
+      "ym": "2026-06",
+      "invoice_count": 1689685,
+      "total_amount_usd": 19528332.85,
+      "clients_active_min": 488
+    },
+    {
+      "ym": "2026-07",
+      "invoice_count": 1017106,
+      "total_amount_usd": -21884356.6,
+      "clients_active_min": 482,
+      "partial_month": true
+    }
+  ]
 }

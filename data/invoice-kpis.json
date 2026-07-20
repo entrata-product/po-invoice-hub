@@ -1,37 +1,46 @@
 {
-  "_schema": "Invoice headline KPIs (portfolio-wide) — trailing 30d / 90d / 12mo windows anchored on the latest month in the input.",
-  "_status": "pending",
-  "_pending_reason": "Redshift AWS session token expired; awaiting refresh before running queries/invoice-monthly-kpis.redshift.sql. Once refreshed: run via MCP, save output to /tmp/invoice-agg.json, run scripts/build_invoice_kpis.py /tmp/invoice-agg.json.",
+  "_schema": "Invoice headline KPIs (portfolio-wide) \u2014 trailing 30d / 90d / 12mo windows anchored on the latest month in the input.",
+  "_status": "live",
+  "_source": "Redshift entrata_entrata (mirrored ~24h behind prod)",
   "_notes": [
-    "Source: queries/invoice-monthly-kpis.redshift.sql (Redshift-adapted from Pallavi Nawale's Dataset 1 attached to Jira DEV-253879, 2026-07-20)."
+    "Source: queries/invoice-monthly-kpis.redshift.sql (Redshift-adapted from Pallavi Nawale's Dataset 1 attached to Jira DEV-253879, 2026-07-20).",
+    "Live-client scope only (clients.company_status_type_id = 4). Test / demo / template clients excluded.",
+    "Rapid vs Standard release-track split is NULL: the details JSONB column isn't mirrored to Redshift. Restore once DBRE surfaces cluster_id.",
+    "is_first_time_right does NOT deduct for reroutes (per Pallavi's caveat \u2014 reroute events can't be counted for multi-property invoices).",
+    "ELI Invoice Entry / Bulk Invoice Entry source channels never fire: neither invoice_plus_file_processors nor invoice_plus_batches.ap_header_ids are mirrored to Redshift (discovered 2026-07-20). Those invoices fall through to Add Invoice (Manual) / API / App User based on created_by.",
+    "'Dashboard Shortcut' and 'Duplicate / Use Previous' source channels are inherently untrackable (no field or log).",
+    "rejection_category counts appear only when rejection_count > 0. Non-rejected invoices carry category = 'NONE'.",
+    "Portfolio 12-month scan is executed via 4 x 3-month DATEADD-based chunks (MCP timeout constraint). Chunk boundaries are day-aligned, so boundary months appear in two chunks and are summed by the transformer.",
+    "windows are month-aligned: 30d = latest month (partial if current), 90d = trailing 3 months, 12mo = trailing 12.",
+    "active_clients figures are lower-bound estimates (max across slices)."
   ],
-  "as_of": null,
-  "anchor_month": null,
+  "as_of": "2026-07-20",
+  "anchor_month": "2026-07",
   "totals": {
-    "total_invoices": null,
-    "total_amount_usd": null,
-    "ftr_denom": null,
-    "ftr_count": null,
-    "ftr_rate_pct": null,
-    "touchless_denom": null,
-    "touchless_count": null,
-    "touchless_rate_pct": null,
-    "rejected_count": null,
-    "total_rejection_events": null,
-    "rejection_rate_pct": null,
-    "avg_days_to_posted": null
+    "total_invoices": 18902392,
+    "total_amount_usd": -42095860.41,
+    "ftr_denom": 18282778,
+    "ftr_count": 18154372,
+    "ftr_rate_pct": 99.3,
+    "touchless_denom": 18235749,
+    "touchless_count": 15814611,
+    "touchless_rate_pct": 86.7,
+    "rejected_count": 128406,
+    "total_rejection_events": 152705,
+    "rejection_rate_pct": 0.7,
+    "avg_days_to_posted": 2.1
   },
   "window_30d": {
-    "invoices_created": null,
-    "total_amount_usd": null,
-    "active_clients_min": null
+    "invoices_created": 1017106,
+    "total_amount_usd": -21884356.6,
+    "active_clients_min": 482
   },
   "window_90d": {
-    "invoices_created": null,
-    "total_amount_usd": null
+    "invoices_created": 4239483,
+    "total_amount_usd": -119531115.38
   },
   "window_12mo": {
-    "invoices_created": null,
-    "total_amount_usd": null
+    "invoices_created": 18271043,
+    "total_amount_usd": 44229832.32
   }
 }

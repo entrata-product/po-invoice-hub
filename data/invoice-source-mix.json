@@ -1,13 +1,81 @@
 {
   "_schema": "Invoice source_channel distribution, last 12 months.",
-  "_status": "pending",
-  "_pending_reason": "Awaiting Redshift refresh — see invoice-kpis.json._pending_reason.",
+  "_status": "live",
   "_notes": [
-    "Source: queries/invoice-monthly-kpis.redshift.sql (DEV-253879).",
-    "Channels 'Dashboard Shortcut' and 'Duplicate / Use Previous' will never appear (no source field/log)."
+    "Source: queries/invoice-monthly-kpis.redshift.sql (Redshift-adapted from Pallavi Nawale's Dataset 1 attached to Jira DEV-253879, 2026-07-20).",
+    "Live-client scope only (clients.company_status_type_id = 4). Test / demo / template clients excluded.",
+    "Rapid vs Standard release-track split is NULL: the details JSONB column isn't mirrored to Redshift. Restore once DBRE surfaces cluster_id.",
+    "is_first_time_right does NOT deduct for reroutes (per Pallavi's caveat \u2014 reroute events can't be counted for multi-property invoices).",
+    "ELI Invoice Entry / Bulk Invoice Entry source channels never fire: neither invoice_plus_file_processors nor invoice_plus_batches.ap_header_ids are mirrored to Redshift (discovered 2026-07-20). Those invoices fall through to Add Invoice (Manual) / API / App User based on created_by.",
+    "'Dashboard Shortcut' and 'Duplicate / Use Previous' source channels are inherently untrackable (no field or log).",
+    "rejection_category counts appear only when rejection_count > 0. Non-rejected invoices carry category = 'NONE'.",
+    "Portfolio 12-month scan is executed via 4 x 3-month DATEADD-based chunks (MCP timeout constraint). Chunk boundaries are day-aligned, so boundary months appear in two chunks and are summed by the transformer.",
+    "Sources 'Dashboard Shortcut' and 'Duplicate / Use Previous' will never appear (no source field or log).",
+    "'ELI Invoice Entry' is under-counted because the batch-array fallback branch is dropped in the Redshift adaptation."
   ],
-  "as_of": null,
+  "as_of": "2026-07-20",
   "window": "last_12_months",
-  "total_invoices_in_window": null,
-  "sources": []
+  "total_invoices_in_window": 18271043,
+  "sources": [
+    {
+      "source": "Add Invoice (Manual)",
+      "invoice_count": 11983997,
+      "total_amount_usd": -8298189783.17,
+      "pct": 65.6
+    },
+    {
+      "source": "Old Bulk Invoice Entry",
+      "invoice_count": 1866228,
+      "total_amount_usd": 1844834987.58,
+      "pct": 10.2
+    },
+    {
+      "source": "Invoice Import",
+      "invoice_count": 1110023,
+      "total_amount_usd": 3254497040.54,
+      "pct": 6.1
+    },
+    {
+      "source": "UEM",
+      "invoice_count": 1006352,
+      "total_amount_usd": 507513363.46,
+      "pct": 5.5
+    },
+    {
+      "source": "Purchase Orders: Create Invoice",
+      "invoice_count": 933541,
+      "total_amount_usd": 960447963.47,
+      "pct": 5.1
+    },
+    {
+      "source": "Invoice Processing (Manual Entry/Upload)",
+      "invoice_count": 802286,
+      "total_amount_usd": 882512597.66,
+      "pct": 4.4
+    },
+    {
+      "source": "Vendor Portal",
+      "invoice_count": 310142,
+      "total_amount_usd": 256469051.28,
+      "pct": 1.7
+    },
+    {
+      "source": "App User",
+      "invoice_count": 171531,
+      "total_amount_usd": -221304395.0,
+      "pct": 0.9
+    },
+    {
+      "source": "Recurring Transaction",
+      "invoice_count": 55082,
+      "total_amount_usd": 518640848.72,
+      "pct": 0.3
+    },
+    {
+      "source": "Invoice Template",
+      "invoice_count": 31861,
+      "total_amount_usd": 338808157.78,
+      "pct": 0.2
+    }
+  ]
 }
