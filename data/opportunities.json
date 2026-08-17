@@ -2,10 +2,10 @@
   "_source": "Derived from data/cs-top-clients.json (CS classifier v4), data/early-pay.json, data/user-penetration.json, data/roadmap.json, and the seven client deep-dives under data/local/. Each opportunity cites the underlying evidence.",
   "_run_ts": "2026-08-17T12:00:00Z",
   "_notes": [
-    "This is the Opportunities Board — top candidate epics with quant support ready for prioritization discussions.",
-    "Rankings are John's read; ordered by 'signal breadth × dollarizable impact × how ready the design partner is.' Reorder freely.",
+    "This is the Opportunities Board \u2014 top candidate epics with quant support ready for prioritization discussions.",
+    "Rankings are John's read; ordered by 'signal breadth \u00d7 dollarizable impact \u00d7 how ready the design partner is.' Reorder freely.",
     "Every opportunity has (a) an explicit primary metric grounded in the mirror data, (b) at least one signal source you can click through to, and (c) either a related in-flight epic OR a note that it's net-new.",
-    "Effort tiers (S/M/L) are rough PM-estimates — treat as ordering-only. Engineering will resize on breakdown.",
+    "Effort tiers (S/M/L) are rough PM-estimates \u2014 treat as ordering-only. Engineering will resize on breakdown.",
     "The 'design_partner_candidates' block names clients where the deep-dive shows a motivated champion. That is where a design-partner ask should start, not a random Enterprise client."
   ],
   "opportunities": [
@@ -13,8 +13,8 @@
       "id": "photo-attachment-matrix",
       "rank": 1,
       "title": "Required-attachment matrix at PO entry",
-      "one_liner": "Client-configurable rules — turn/damage POs above threshold require photos (or invoice/quote). Blocks the largest single tracked rejection pattern before it enters the approver queue.",
-      "problem_signal": "photo-required is the #1 single-cause rejection pattern after generic coaching. 765+ classified events across 12+ live clients in the trailing 12 months; largest single client is IRT at 228. Combined with chargeback + quote as an 'attachment-matrix' superclass = ~1,270 events across the top 25 clients — the strongest cross-client pattern in the entire dataset.",
+      "one_liner": "Client-configurable rules \u2014 turn/damage POs above threshold require photos (or invoice/quote). Blocks the largest single tracked rejection pattern before it enters the approver queue.",
+      "problem_signal": "photo-required is the #1 single-cause rejection pattern after generic coaching. 765+ classified events across 12+ live clients in the trailing 12 months; largest single client is IRT at 228. Combined with chargeback + quote as an 'attachment-matrix' superclass = ~1,270 events across the top 25 clients \u2014 the strongest cross-client pattern in the entire dataset.",
       "sizing": {
         "primary_metric_label": "PO rejections avoidable",
         "primary_value": 765,
@@ -23,19 +23,44 @@
         "secondary_value": 128,
         "secondary_unit": "hours / yr (@ 10 min avg rework loop)",
         "affected_clients": 12,
-        "top_client": {"client_id": 17541, "company_name": "Independence Realty Trust (IRT)", "value": 228, "unit": "photo-required rejections / 12 mo"},
+        "top_client": {
+          "client_id": 17541,
+          "company_name": "Independence Realty Trust (IRT)",
+          "value": 228,
+          "unit": "photo-required rejections / 12 mo"
+        },
         "confidence": "high"
       },
       "signal_sources": [
-        {"label": "CS classifier v4 top-25", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/cs-top-clients.json"},
-        {"label": "Rockstar Capital deep-dive (149 events)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-rockstar-capital-deep-dive.json"},
-        {"label": "Wooten Company deep-dive (98 events, 27% of first-rejections)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-wooten-company-deep-dive.json"}
+        {
+          "label": "CS classifier v4 top-25",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/cs-top-clients.json"
+        },
+        {
+          "label": "Rockstar Capital deep-dive (149 events)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-rockstar-capital-deep-dive.json"
+        },
+        {
+          "label": "Wooten Company deep-dive (98 events, 27% of first-rejections)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-wooten-company-deep-dive.json"
+        }
       ],
       "effort_tier": "M",
       "effort_note": "PO entry form config + validation + property/vendor scoping. Touches PO create-time, vendor + GL routing, and CSM config UX.",
       "design_partner_candidates": [
-        {"client_id": 101469, "company_name": "Rockstar Capital", "why": "Scaling client (4x growth in 10mo), natural champion user 75971 who consistently rejects for missing docs, cross-vocab validation from CBR pattern already established."},
-        {"client_id": 16991, "company_name": "Wooten Company", "why": "Steady-state 15-25% rejection rate for 13 months, two-approver team ('MJS' + colleague) generates 96% of rejections — enterprise-narrow blast radius."}
+        {
+          "client_id": 101469,
+          "company_name": "Rockstar Capital",
+          "why": "Scaling client (4x growth in 10mo), natural champion user 75971 who consistently rejects for missing docs, cross-vocab validation from CBR pattern already established."
+        },
+        {
+          "client_id": 16991,
+          "company_name": "Wooten Company",
+          "why": "Steady-state 15-25% rejection rate for 13 months, two-approver team ('MJS' + colleague) generates 96% of rejections \u2014 enterprise-narrow blast radius."
+        }
       ],
       "related_epics": [],
       "net_new": true,
@@ -56,19 +81,44 @@
         "secondary_value": null,
         "secondary_unit": "$ (not yet sized; requires vendor-payment cross-join)",
         "affected_clients": 6,
-        "top_client": {"client_id": 17541, "company_name": "Independence Realty Trust (IRT)", "value": 350, "unit": "duplicate rejections / 12 mo"},
+        "top_client": {
+          "client_id": 17541,
+          "company_name": "Independence Realty Trust (IRT)",
+          "value": 350,
+          "unit": "duplicate rejections / 12 mo"
+        },
         "confidence": "high"
       },
       "signal_sources": [
-        {"label": "IRT deep-dive (350 duplicate events, one of 4 patterns)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-irt-deep-dive.json"},
-        {"label": "200 W Washington deep-dive (clean single-pattern design partner)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-200w-washington-deep-dive.json"},
-        {"label": "EPC deep-dive (90 duplicate mentions)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-epc-deep-dive.json"}
+        {
+          "label": "IRT deep-dive (350 duplicate events, one of 4 patterns)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-irt-deep-dive.json"
+        },
+        {
+          "label": "200 W Washington deep-dive (clean single-pattern design partner)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-200w-washington-deep-dive.json"
+        },
+        {
+          "label": "EPC deep-dive (90 duplicate mentions)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-epc-deep-dive.json"
+        }
       ],
       "effort_tier": "M",
       "effort_note": "Fuzzy-match logic (vendor + amount + date window + reference number), duplicate-candidate side panel at entry, dismiss-with-reason. Zero-effort to bolt on to invoice side once PO shipped.",
       "design_partner_candidates": [
-        {"client_id": 100353, "company_name": "200 W Washington", "why": "Small blast radius (single property, single approver LH), unambiguous signal (73% of first-rejections cite duplicate), motivated approver. Textbook alpha partner."},
-        {"client_id": 17541, "company_name": "IRT", "why": "Design-partner class; largest absolute volume; 4-pattern client so duplicate detection is one of several wins we can deliver together."}
+        {
+          "client_id": 100353,
+          "company_name": "200 W Washington",
+          "why": "Small blast radius (single property, single approver LH), unambiguous signal (73% of first-rejections cite duplicate), motivated approver. Textbook alpha partner."
+        },
+        {
+          "client_id": 17541,
+          "company_name": "IRT",
+          "why": "Design-partner class; largest absolute volume; 4-pattern client so duplicate detection is one of several wins we can deliver together."
+        }
       ],
       "related_epics": [],
       "net_new": true,
@@ -80,7 +130,7 @@
       "rank": 3,
       "title": "Make-Ready subtask linkage on turn/damage POs",
       "one_liner": "For turn/damage POs, require linkage to a Make-Ready subtask (with photos on the subtask). Bridges the Accounting Suite + Facilities/Maintenance gap.",
-      "problem_signal": "Wooten Company deep-dive revealed the REAL rejection pattern is Facilities/Make-Ready workflow integration, not just photos — 25% of their 357 first-rejections cite missing Make-Ready subtask linkage. Two-approver team ('MJS' + colleague) generates 96% of rejections. Vendor pattern is textbook (appliance/flooring/tub/restoration vendors rejected at 15-59%). First cross-suite epic candidate.",
+      "problem_signal": "Wooten Company deep-dive revealed the REAL rejection pattern is Facilities/Make-Ready workflow integration, not just photos \u2014 25% of their 357 first-rejections cite missing Make-Ready subtask linkage. Two-approver team ('MJS' + colleague) generates 96% of rejections. Vendor pattern is textbook (appliance/flooring/tub/restoration vendors rejected at 15-59%). First cross-suite epic candidate.",
       "sizing": {
         "primary_metric_label": "PO rejections avoidable (Wooten alone)",
         "primary_value": 90,
@@ -89,16 +139,29 @@
         "secondary_value": null,
         "secondary_unit": "clients also running Facilities + PO (not yet joined)",
         "affected_clients": 1,
-        "top_client": {"client_id": 16991, "company_name": "The Wooten Company", "value": 90, "unit": "linkage rejections / 12 mo"},
+        "top_client": {
+          "client_id": 16991,
+          "company_name": "The Wooten Company",
+          "value": 90,
+          "unit": "linkage rejections / 12 mo"
+        },
         "confidence": "medium"
       },
       "signal_sources": [
-        {"label": "Wooten Company deep-dive (2026-07-07)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-wooten-company-deep-dive.json"}
+        {
+          "label": "Wooten Company deep-dive (2026-07-07)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-wooten-company-deep-dive.json"
+        }
       ],
       "effort_tier": "L",
       "effort_note": "Cross-suite: PO entry side needs a Make-Ready picker; Facilities side needs the subtask concept to expose. Requires coordination with Stephen's team (Verticals/Facilities).",
       "design_partner_candidates": [
-        {"client_id": 16991, "company_name": "Wooten Company", "why": "Steady-state (no scaling pressure, no self-correction expected). Two-person approver team is the entire user base for this workflow. Deep-dive already validated the mental model."}
+        {
+          "client_id": 16991,
+          "company_name": "Wooten Company",
+          "why": "Steady-state (no scaling pressure, no self-correction expected). Two-person approver team is the entire user base for this workflow. Deep-dive already validated the mental model."
+        }
       ],
       "related_epics": [],
       "net_new": true,
@@ -111,23 +174,40 @@
       "rank": 4,
       "title": "CBR (Chargeback Recovery) field at PO entry + FMO attachment requirement",
       "one_liner": "Property-level opt-in flag: 'this property runs chargeback recovery'. On enabled properties, require CBR designation + FMO on turn/damage POs.",
-      "problem_signal": "Chargeback-recovery rejections are a cross-vocabulary portfolio pattern surfaced in three deep-dives: Rockstar (264 FMO/chargeback events, user 75945 = gatekeeper), Incore (96 events, 17% of classified), Forthright (15 events). Property-level opt-in is critical — Rockstar has 10 of 22 properties running chargeback; Incore similar. Not a portfolio-wide requirement.",
+      "problem_signal": "Chargeback-recovery rejections are a cross-vocabulary portfolio pattern surfaced in three deep-dives: Rockstar (264 FMO/chargeback events, user 75945 = gatekeeper), Incore (96 events, 17% of classified), Forthright (15 events). Property-level opt-in is critical \u2014 Rockstar has 10 of 22 properties running chargeback; Incore similar. Not a portfolio-wide requirement.",
       "sizing": {
         "primary_metric_label": "PO rejections avoidable",
         "primary_value": 375,
         "primary_unit": "rejections / 12 mo (Rockstar + Incore + Forthright)",
         "affected_clients": 3,
-        "top_client": {"client_id": 101469, "company_name": "Rockstar Capital", "value": 264, "unit": "FMO/CBR rejections / 12 mo"},
+        "top_client": {
+          "client_id": 101469,
+          "company_name": "Rockstar Capital",
+          "value": 264,
+          "unit": "FMO/CBR rejections / 12 mo"
+        },
         "confidence": "high"
       },
       "signal_sources": [
-        {"label": "Rockstar Capital deep-dive (design partner)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-rockstar-capital-deep-dive.json"},
-        {"label": "Incore Residential deep-dive (v3 pattern origin)", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-incore-deep-dive.json"}
+        {
+          "label": "Rockstar Capital deep-dive (design partner)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-rockstar-capital-deep-dive.json"
+        },
+        {
+          "label": "Incore Residential deep-dive (v3 pattern origin)",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-incore-deep-dive.json"
+        }
       ],
       "effort_tier": "S",
       "effort_note": "Property-level flag + a required field on PO entry when flag is on. Vendor-scope filter recommended (turn contractors show 37-66% CBR concentration).",
       "design_partner_candidates": [
-        {"client_id": 101469, "company_name": "Rockstar Capital", "why": "User 75945 is a natural CBR champion (58% of their 350 rejections are FMO/chargeback). Two natural champions across use cases: 75945 for CBR, 75971 for photos/quotes."}
+        {
+          "client_id": 101469,
+          "company_name": "Rockstar Capital",
+          "why": "User 75945 is a natural CBR champion (58% of their 350 rejections are FMO/chargeback). Two natural champions across use cases: 75945 for CBR, 75971 for photos/quotes."
+        }
       ],
       "related_epics": [],
       "net_new": true,
@@ -139,7 +219,7 @@
       "rank": 5,
       "title": "Early-pay discount config activation drive",
       "one_liner": "Sales/CSM play to move clients from '0 vendors tagged with discount terms' to actively capturing. Config UX cleanup where the friction is.",
-      "problem_signal": "Only 25 live clients have any discount terms configured (as of March 2025 snapshot). 14 of those 25 have terms defined but ZERO vendors tagged — pure activation gap. On the 11 clients with real activity: $1.25M available / $645K captured / $600.9K missed in trailing 12 mo. Note: PO/Invoice mirror has stale ap_payee_terms snapshot — see DBRE ask for current data.",
+      "problem_signal": "Only 25 live clients have any discount terms configured (as of March 2025 snapshot). 14 of those 25 have terms defined but ZERO vendors tagged \u2014 pure activation gap. On the 11 clients with real activity: $1.25M available / $645K captured / $600.9K missed in trailing 12 mo. Note: PO/Invoice mirror has stale ap_payee_terms snapshot \u2014 see DBRE ask for current data.",
       "sizing": {
         "primary_metric_label": "Missed discount $ (12mo)",
         "primary_value": 600883,
@@ -148,12 +228,21 @@
         "secondary_value": 14,
         "secondary_unit": "clients with terms defined but no vendors tagged",
         "affected_clients": 25,
-        "top_client": {"client_id": 17541, "company_name": "Independence Realty Trust (IRT)", "value": 559281, "unit": "$ missed / 12 mo"},
+        "top_client": {
+          "client_id": 17541,
+          "company_name": "Independence Realty Trust (IRT)",
+          "value": 559281,
+          "unit": "$ missed / 12 mo"
+        },
         "confidence": "medium",
-        "confidence_note": "March 2025 snapshot; current mirror is missing ap_payee_terms. IRT dominates the numerator (93% of missed $) but has 53% capture — the more interesting play is the 14 config-gap clients + IRT capture-UX."
+        "confidence_note": "March 2025 snapshot; current mirror is missing ap_payee_terms. IRT dominates the numerator (93% of missed $) but has 53% capture \u2014 the more interesting play is the 14 config-gap clients + IRT capture-UX."
       },
       "signal_sources": [
-        {"label": "Early-pay adoption card (Adoption tab)", "dashboard_tab": "adoption", "artifact_ref": "data/early-pay.json"}
+        {
+          "label": "Early-pay adoption card (Adoption tab)",
+          "dashboard_tab": "adoption",
+          "artifact_ref": "data/early-pay.json"
+        }
       ],
       "effort_tier": "S",
       "effort_note": "Not primarily an engineering ask. CSM outreach + a config-audit report + potentially a 'discount terms setup wizard' if UX friction is why the 14 clients stopped after defining terms.",
@@ -171,60 +260,46 @@
       "rank": 6,
       "title": "PO/Invoice entry-form validation for high-coaching clients",
       "one_liner": "GL/unit/supporting-doc validation at PO create time on properties/vendors where coaching-note rejections dominate. Kills the largest volume rejection category.",
-      "problem_signal": "'Coaching-heavy' is the top pattern for 9 of the top-25 clients (Troy Allan 87%, Realty Logistics 98.8%, Haley Residential 94%, Integrity 99%, Annex 98%, Insula 65%, Ginkgo 64%, GY 68%, Birchstone 24%). Combined volume: 1,890+ coaching rejections in the trailing 12 mo. Design-partner candidate Realty Logistics has a single approver (user 234392) doing 90% of rejections — cleanest signal.",
+      "problem_signal": "'Coaching-heavy' is the top pattern for 9 of the top-25 clients (Troy Allan 87%, Realty Logistics 98.8%, Haley Residential 94%, Integrity 99%, Annex 98%, Insula 65%, Ginkgo 64%, GY 68%, Birchstone 24%). Combined volume: 1,890+ coaching rejections in the trailing 12 mo. Design-partner candidate Realty Logistics has a single approver (user 234392) doing 90% of rejections \u2014 cleanest signal.",
       "sizing": {
         "primary_metric_label": "PO rejections avoidable",
         "primary_value": 1890,
         "primary_unit": "rejections / 12 mo (top-9 coaching-heavy clients)",
         "affected_clients": 9,
-        "top_client": {"client_id": 10502, "company_name": "Realty Logistics International", "value": 849, "unit": "coaching rejections / 12 mo"},
+        "top_client": {
+          "client_id": 10502,
+          "company_name": "Realty Logistics International",
+          "value": 849,
+          "unit": "coaching rejections / 12 mo"
+        },
         "confidence": "medium",
-        "confidence_note": "'Coaching' is a heterogeneous bucket. Deep-dive per client will refine — some subset will already be covered by opportunities #1-#4."
+        "confidence_note": "'Coaching' is a heterogeneous bucket. Deep-dive per client will refine \u2014 some subset will already be covered by opportunities #1-#4."
       },
       "signal_sources": [
-        {"label": "CS classifier v4", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/cs-top-clients.json"},
-        {"label": "Realty Logistics deep-dive", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-realty-logistics-deep-dive.json"}
+        {
+          "label": "CS classifier v4",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/cs-top-clients.json"
+        },
+        {
+          "label": "Realty Logistics deep-dive",
+          "dashboard_tab": "cs-toolkit",
+          "artifact_ref": "data/local/cs-realty-logistics-deep-dive.json"
+        }
       ],
       "effort_tier": "M",
       "effort_note": "Broad category. Recommend scoping via a workshop with 2-3 coaching-heavy clients to identify the top 3 validation rules to build first.",
       "design_partner_candidates": [
-        {"client_id": 10502, "company_name": "Realty Logistics International", "why": "Single approver doing 90% of the 849 coaching rejections. Design partner candidate."}
+        {
+          "client_id": 10502,
+          "company_name": "Realty Logistics International",
+          "why": "Single approver doing 90% of the 849 coaching rejections. Design partner candidate."
+        }
       ],
       "related_epics": [],
       "net_new": true,
       "status": "candidate",
       "product_owner": "John Braithwaite"
-    },
-    {
-      "id": "vendor-deactivation-enforcement",
-      "rank": 7,
-      "title": "Enforce vendor deactivation at PO entry",
-      "one_liner": "When a client deactivates a vendor, block new PO creation for that vendor at the property level. Today it's advisory.",
-      "problem_signal": "Wooten deep-dive found Xtreme Exteriors — a vendor Wooten explicitly decided to switch off — was still generating 17 rejections on 31 POs (54.8% rejection rate). Small-volume but clean signal that vendor-deactivation is currently a suggestion, not an enforcement.",
-      "sizing": {
-        "primary_metric_label": "PO rejections avoidable (Wooten example)",
-        "primary_value": 17,
-        "primary_unit": "rejections / 12 mo (single vendor)",
-        "secondary_metric_label": "Portfolio-wide scale",
-        "secondary_value": null,
-        "secondary_unit": "not yet sized (needs vendor-status × PO-activity join)",
-        "affected_clients": 1,
-        "confidence": "low"
-      },
-      "signal_sources": [
-        {"label": "Wooten Company deep-dive", "dashboard_tab": "cs-toolkit", "artifact_ref": "data/local/cs-wooten-company-deep-dive.json"}
-      ],
-      "effort_tier": "S",
-      "effort_note": "Enforcement rule on existing vendor-status field. Likely already close-to-in-flight given DEV-298680 covers Vendor Validation.",
-      "design_partner_candidates": [
-        {"client_id": 16991, "company_name": "Wooten Company", "why": "Named vendor + observed rejection pattern; validation would take one CS conversation."}
-      ],
-      "related_epics": [
-        {"key": "DEV-298680", "url": "https://entrata.atlassian.net/browse/DEV-298680", "release": "R4 2026", "summary": "Vendor Validation and Permission Filtering — Disabled Vendor Blocking, GL Restrictions, AP Touchpoints"}
-      ],
-      "net_new": false,
-      "status": "in-roadmap",
-      "product_owner": "Angela Wirick"
     }
   ]
 }
