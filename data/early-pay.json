@@ -1,0 +1,244 @@
+{
+  "as_of": "2026-08-17",
+  "trailing_period_months": 12,
+  "notes": [
+    "CRITICAL: ap_payee_terms has been removed from the live Redshift mirror. This report uses the archived snapshot ap_payee_terms_removed_03_21_25 (as of 2025-03-21). Any discount-term config created or changed after that date is invisible here.",
+    "Headline story: this is a CONFIGURATION ADOPTION GAP first, capture rate second. Fewer than a couple dozen live clients had any discount terms defined in the snapshot.",
+    "Capture-rate window: post_date within the trailing 12 months.",
+    "Capture-rate month is bucketed by capture-date if captured, else by the discount deadline. Denominator excludes invoices whose deadline is still in the future.",
+    "Live-client scope only (clients.company_status_type_id = 4)."
+  ],
+  "config_gap": {
+    "clients_with_terms_configured": 25,
+    "clients_with_terms_and_vendors_tagged": 11,
+    "clients_with_terms_but_no_vendors": 14,
+    "total_terms_defined": 44,
+    "total_vendors_tagged": 855
+  },
+  "capture_portfolio": {
+    "clients_with_activity": 11,
+    "eligible_invoices_12mo": 38879,
+    "discount_available_sum_12mo": 1246478.71,
+    "discount_captured_sum_12mo": 645595.25,
+    "discount_missed_sum_12mo": 600883.46,
+    "capture_rate_pct_12mo": 51.79
+  },
+  "monthly": [
+    {
+      "period_month": "2025-08",
+      "eligible_invoices": 924,
+      "available": 22857.57,
+      "captured": 13125.78,
+      "missed": 9731.79,
+      "capture_rate_pct": 57.42
+    },
+    {
+      "period_month": "2025-09",
+      "eligible_invoices": 4042,
+      "available": 132738.09,
+      "captured": 61655.14,
+      "missed": 71082.95,
+      "capture_rate_pct": 46.45
+    },
+    {
+      "period_month": "2025-10",
+      "eligible_invoices": 4055,
+      "available": 142927.09,
+      "captured": 70558.87,
+      "missed": 72368.22,
+      "capture_rate_pct": 49.37
+    },
+    {
+      "period_month": "2025-11",
+      "eligible_invoices": 3138,
+      "available": 86721.16,
+      "captured": 36427.08,
+      "missed": 50294.08,
+      "capture_rate_pct": 42.0
+    },
+    {
+      "period_month": "2025-12",
+      "eligible_invoices": 3009,
+      "available": 70030.87,
+      "captured": 26544.36,
+      "missed": 43486.51,
+      "capture_rate_pct": 37.9
+    },
+    {
+      "period_month": "2026-01",
+      "eligible_invoices": 2619,
+      "available": 58445.44,
+      "captured": 25471.56,
+      "missed": 32973.88,
+      "capture_rate_pct": 43.58
+    },
+    {
+      "period_month": "2026-02",
+      "eligible_invoices": 2704,
+      "available": 62777.04,
+      "captured": 31487.73,
+      "missed": 31289.31,
+      "capture_rate_pct": 50.16
+    },
+    {
+      "period_month": "2026-03",
+      "eligible_invoices": 2999,
+      "available": 95836.99,
+      "captured": 53314.47,
+      "missed": 42522.52,
+      "capture_rate_pct": 55.63
+    },
+    {
+      "period_month": "2026-04",
+      "eligible_invoices": 3062,
+      "available": 114290.97,
+      "captured": 55980.73,
+      "missed": 58310.24,
+      "capture_rate_pct": 48.98
+    },
+    {
+      "period_month": "2026-05",
+      "eligible_invoices": 3603,
+      "available": 119065.43,
+      "captured": 69187.41,
+      "missed": 49878.02,
+      "capture_rate_pct": 58.11
+    },
+    {
+      "period_month": "2026-06",
+      "eligible_invoices": 3630,
+      "available": 154965.89,
+      "captured": 83599.84,
+      "missed": 71366.05,
+      "capture_rate_pct": 53.95
+    },
+    {
+      "period_month": "2026-07",
+      "eligible_invoices": 3977,
+      "available": 143068.79,
+      "captured": 92075.03,
+      "missed": 50993.76,
+      "capture_rate_pct": 64.36
+    },
+    {
+      "period_month": "2026-08",
+      "eligible_invoices": 1117,
+      "available": 42753.38,
+      "captured": 26167.25,
+      "missed": 16586.13,
+      "capture_rate_pct": 61.21
+    }
+  ],
+  "clients": [
+    {
+      "client_id": 17541,
+      "terms_configured": 1,
+      "vendors_tagged": 830,
+      "eligible_invoices_12mo": 37942,
+      "available_12mo": 1197703.72,
+      "captured_12mo": 638422.35,
+      "missed_12mo": 559281.37,
+      "capture_rate_pct_12mo": 53.3
+    },
+    {
+      "client_id": 100943,
+      "terms_configured": 2,
+      "vendors_tagged": 3,
+      "eligible_invoices_12mo": 131,
+      "available_12mo": 37105.26,
+      "captured_12mo": 1074.0,
+      "missed_12mo": 36031.26,
+      "capture_rate_pct_12mo": 2.89
+    },
+    {
+      "client_id": 6072,
+      "terms_configured": 5,
+      "vendors_tagged": 8,
+      "eligible_invoices_12mo": 63,
+      "available_12mo": 6926.21,
+      "captured_12mo": 4025.04,
+      "missed_12mo": 2901.17,
+      "capture_rate_pct_12mo": 58.11
+    },
+    {
+      "client_id": 12472,
+      "terms_configured": 1,
+      "vendors_tagged": 1,
+      "eligible_invoices_12mo": 620,
+      "available_12mo": 2930.05,
+      "captured_12mo": 1044.28,
+      "missed_12mo": 1885.77,
+      "capture_rate_pct_12mo": 35.64
+    },
+    {
+      "client_id": 1788,
+      "terms_configured": 1,
+      "vendors_tagged": 1,
+      "eligible_invoices_12mo": 16,
+      "available_12mo": 575.47,
+      "captured_12mo": 0.0,
+      "missed_12mo": 575.47,
+      "capture_rate_pct_12mo": 0.0
+    },
+    {
+      "client_id": 12876,
+      "terms_configured": 3,
+      "vendors_tagged": 1,
+      "eligible_invoices_12mo": 34,
+      "available_12mo": 140.86,
+      "captured_12mo": 60.06,
+      "missed_12mo": 80.8,
+      "capture_rate_pct_12mo": 42.64
+    },
+    {
+      "client_id": 4042,
+      "terms_configured": 3,
+      "vendors_tagged": 3,
+      "eligible_invoices_12mo": 8,
+      "available_12mo": 62.48,
+      "captured_12mo": 0.0,
+      "missed_12mo": 62.48,
+      "capture_rate_pct_12mo": 0.0
+    },
+    {
+      "client_id": 18168,
+      "terms_configured": 2,
+      "vendors_tagged": 2,
+      "eligible_invoices_12mo": 3,
+      "available_12mo": 40.45,
+      "captured_12mo": 0.0,
+      "missed_12mo": 40.45,
+      "capture_rate_pct_12mo": 0.0
+    },
+    {
+      "client_id": 13768,
+      "terms_configured": 2,
+      "vendors_tagged": 2,
+      "eligible_invoices_12mo": 5,
+      "available_12mo": 37.16,
+      "captured_12mo": 12.15,
+      "missed_12mo": 25.01,
+      "capture_rate_pct_12mo": 32.7
+    },
+    {
+      "client_id": 12568,
+      "terms_configured": 2,
+      "vendors_tagged": 1,
+      "eligible_invoices_12mo": 1,
+      "available_12mo": 0.02,
+      "captured_12mo": 0.0,
+      "missed_12mo": 0.02,
+      "capture_rate_pct_12mo": 0.0
+    },
+    {
+      "client_id": 19058,
+      "terms_configured": 1,
+      "vendors_tagged": 3,
+      "eligible_invoices_12mo": 56,
+      "available_12mo": 957.03,
+      "captured_12mo": 957.37,
+      "missed_12mo": -0.34,
+      "capture_rate_pct_12mo": 100.04
+    }
+  ]
+}

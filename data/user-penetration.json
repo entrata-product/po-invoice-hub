@@ -1,0 +1,643 @@
+{
+  "as_of": "2026-08-17",
+  "trailing_period_months": 12,
+  "notes": [
+    "Live-client scope only (clients.company_status_type_id = 4).",
+    "Non-template PO/Invoice activity: created OR edited via ap_header_logs.",
+    "System users 21/48/67/77 excluded from the active-users numerator.",
+    "Licensed-user denominator is portfolio-current, not point-in-time per month; penetration for older months is measured against today's user roster.",
+    "Trailing 12 calendar months from the run date."
+  ],
+  "po": {
+    "portfolio": {
+      "clients_with_activity": 273,
+      "total_licensed_users": 41818,
+      "active_users_latest_month": 5192,
+      "penetration_pct_latest": 12.42,
+      "penetration_pct_avg_12mo": 12.58
+    },
+    "monthly": [
+      {
+        "period_month": "2025-08",
+        "clients": 182,
+        "total_licensed_users": 36642,
+        "active_users": 4530,
+        "penetration_pct": 12.36
+      },
+      {
+        "period_month": "2025-09",
+        "clients": 207,
+        "total_licensed_users": 43401,
+        "active_users": 5191,
+        "penetration_pct": 11.96
+      },
+      {
+        "period_month": "2025-10",
+        "clients": 206,
+        "total_licensed_users": 43490,
+        "active_users": 5324,
+        "penetration_pct": 12.24
+      },
+      {
+        "period_month": "2025-11",
+        "clients": 210,
+        "total_licensed_users": 43575,
+        "active_users": 5240,
+        "penetration_pct": 12.03
+      },
+      {
+        "period_month": "2025-12",
+        "clients": 212,
+        "total_licensed_users": 43790,
+        "active_users": 5289,
+        "penetration_pct": 12.08
+      },
+      {
+        "period_month": "2026-01",
+        "clients": 217,
+        "total_licensed_users": 44830,
+        "active_users": 5313,
+        "penetration_pct": 11.85
+      },
+      {
+        "period_month": "2026-02",
+        "clients": 215,
+        "total_licensed_users": 44127,
+        "active_users": 5290,
+        "penetration_pct": 11.99
+      },
+      {
+        "period_month": "2026-03",
+        "clients": 220,
+        "total_licensed_users": 42983,
+        "active_users": 5475,
+        "penetration_pct": 12.74
+      },
+      {
+        "period_month": "2026-04",
+        "clients": 219,
+        "total_licensed_users": 41601,
+        "active_users": 5562,
+        "penetration_pct": 13.37
+      },
+      {
+        "period_month": "2026-05",
+        "clients": 219,
+        "total_licensed_users": 41070,
+        "active_users": 5534,
+        "penetration_pct": 13.47
+      },
+      {
+        "period_month": "2026-06",
+        "clients": 222,
+        "total_licensed_users": 42969,
+        "active_users": 5665,
+        "penetration_pct": 13.18
+      },
+      {
+        "period_month": "2026-07",
+        "clients": 221,
+        "total_licensed_users": 41494,
+        "active_users": 5733,
+        "penetration_pct": 13.82
+      },
+      {
+        "period_month": "2026-08",
+        "clients": 217,
+        "total_licensed_users": 41818,
+        "active_users": 5192,
+        "penetration_pct": 12.42
+      }
+    ],
+    "top_clients": [
+      {
+        "client_id": 10963,
+        "latest_licensed_users": 14,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 52.14,
+        "months_with_activity": 10
+      },
+      {
+        "client_id": 101900,
+        "latest_licensed_users": 10,
+        "latest_active_users": 3,
+        "penetration_pct_avg_12mo": 51.25,
+        "months_with_activity": 8
+      },
+      {
+        "client_id": 100880,
+        "latest_licensed_users": 65,
+        "latest_active_users": 25,
+        "penetration_pct_avg_12mo": 48.52,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 19012,
+        "latest_licensed_users": 109,
+        "latest_active_users": 47,
+        "penetration_pct_avg_12mo": 45.1,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 17623,
+        "latest_licensed_users": 69,
+        "latest_active_users": 25,
+        "penetration_pct_avg_12mo": 45.04,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 100834,
+        "latest_licensed_users": 39,
+        "latest_active_users": 14,
+        "penetration_pct_avg_12mo": 43.79,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 18103,
+        "latest_licensed_users": 8,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 42.19,
+        "months_with_activity": 8
+      },
+      {
+        "client_id": 17712,
+        "latest_licensed_users": 132,
+        "latest_active_users": 55,
+        "penetration_pct_avg_12mo": 41.55,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 16041,
+        "latest_licensed_users": 128,
+        "latest_active_users": 50,
+        "penetration_pct_avg_12mo": 39.96,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 101214,
+        "latest_licensed_users": 35,
+        "latest_active_users": 14,
+        "penetration_pct_avg_12mo": 36.92,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 17697,
+        "latest_licensed_users": 247,
+        "latest_active_users": 78,
+        "penetration_pct_avg_12mo": 36.91,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 16706,
+        "latest_licensed_users": 77,
+        "latest_active_users": 18,
+        "penetration_pct_avg_12mo": 36.56,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 15114,
+        "latest_licensed_users": 213,
+        "latest_active_users": 64,
+        "penetration_pct_avg_12mo": 36.4,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 102088,
+        "latest_licensed_users": 20,
+        "latest_active_users": 9,
+        "penetration_pct_avg_12mo": 35.0,
+        "months_with_activity": 3
+      },
+      {
+        "client_id": 18490,
+        "latest_licensed_users": 28,
+        "latest_active_users": 10,
+        "penetration_pct_avg_12mo": 34.89,
+        "months_with_activity": 13
+      }
+    ],
+    "bottom_clients": [
+      {
+        "client_id": 3395,
+        "latest_licensed_users": 3175,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.03,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 13531,
+        "latest_licensed_users": 1812,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.07,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 10406,
+        "latest_licensed_users": 1338,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.07,
+        "months_with_activity": 3
+      },
+      {
+        "client_id": 2342,
+        "latest_licensed_users": 3357,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.18,
+        "months_with_activity": 7
+      },
+      {
+        "client_id": 3156,
+        "latest_licensed_users": 524,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.24,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 8982,
+        "latest_licensed_users": 390,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.26,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 19520,
+        "latest_licensed_users": 286,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.35,
+        "months_with_activity": 5
+      },
+      {
+        "client_id": 101089,
+        "latest_licensed_users": 487,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.41,
+        "months_with_activity": 4
+      },
+      {
+        "client_id": 4104,
+        "latest_licensed_users": 224,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.45,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 3317,
+        "latest_licensed_users": 217,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.46,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 17786,
+        "latest_licensed_users": 206,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.49,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 18731,
+        "latest_licensed_users": 389,
+        "latest_active_users": 2,
+        "penetration_pct_avg_12mo": 0.51,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 15666,
+        "latest_licensed_users": 214,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.51,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 100130,
+        "latest_licensed_users": 192,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.52,
+        "months_with_activity": 9
+      },
+      {
+        "client_id": 13761,
+        "latest_licensed_users": 355,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.56,
+        "months_with_activity": 12
+      }
+    ]
+  },
+  "invoice": {
+    "portfolio": {
+      "clients_with_activity": 707,
+      "total_licensed_users": 107083,
+      "active_users_latest_month": 15469,
+      "penetration_pct_latest": 14.45,
+      "penetration_pct_avg_12mo": 15.33
+    },
+    "monthly": [
+      {
+        "period_month": "2025-08",
+        "clients": 599,
+        "total_licensed_users": 104734,
+        "active_users": 14545,
+        "penetration_pct": 13.89
+      },
+      {
+        "period_month": "2025-09",
+        "clients": 620,
+        "total_licensed_users": 105619,
+        "active_users": 16546,
+        "penetration_pct": 15.67
+      },
+      {
+        "period_month": "2025-10",
+        "clients": 618,
+        "total_licensed_users": 105612,
+        "active_users": 16412,
+        "penetration_pct": 15.54
+      },
+      {
+        "period_month": "2025-11",
+        "clients": 613,
+        "total_licensed_users": 105280,
+        "active_users": 15807,
+        "penetration_pct": 15.01
+      },
+      {
+        "period_month": "2025-12",
+        "clients": 623,
+        "total_licensed_users": 106020,
+        "active_users": 16164,
+        "penetration_pct": 15.25
+      },
+      {
+        "period_month": "2026-01",
+        "clients": 630,
+        "total_licensed_users": 106173,
+        "active_users": 16371,
+        "penetration_pct": 15.42
+      },
+      {
+        "period_month": "2026-02",
+        "clients": 626,
+        "total_licensed_users": 106003,
+        "active_users": 16159,
+        "penetration_pct": 15.24
+      },
+      {
+        "period_month": "2026-03",
+        "clients": 638,
+        "total_licensed_users": 106802,
+        "active_users": 16567,
+        "penetration_pct": 15.51
+      },
+      {
+        "period_month": "2026-04",
+        "clients": 648,
+        "total_licensed_users": 107284,
+        "active_users": 16597,
+        "penetration_pct": 15.47
+      },
+      {
+        "period_month": "2026-05",
+        "clients": 656,
+        "total_licensed_users": 107489,
+        "active_users": 16823,
+        "penetration_pct": 15.65
+      },
+      {
+        "period_month": "2026-06",
+        "clients": 666,
+        "total_licensed_users": 107871,
+        "active_users": 17273,
+        "penetration_pct": 16.01
+      },
+      {
+        "period_month": "2026-07",
+        "clients": 668,
+        "total_licensed_users": 107850,
+        "active_users": 17400,
+        "penetration_pct": 16.13
+      },
+      {
+        "period_month": "2026-08",
+        "clients": 655,
+        "total_licensed_users": 107083,
+        "active_users": 15469,
+        "penetration_pct": 14.45
+      }
+    ],
+    "top_clients": [
+      {
+        "client_id": 18709,
+        "latest_licensed_users": 2,
+        "latest_active_users": 2,
+        "penetration_pct_avg_12mo": 165.38,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 100976,
+        "latest_licensed_users": 6,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 123.08,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 101842,
+        "latest_licensed_users": 7,
+        "latest_active_users": 3,
+        "penetration_pct_avg_12mo": 64.28,
+        "months_with_activity": 8
+      },
+      {
+        "client_id": 101598,
+        "latest_licensed_users": 5,
+        "latest_active_users": 3,
+        "penetration_pct_avg_12mo": 61.54,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 100015,
+        "latest_licensed_users": 3,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 61.54,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 18757,
+        "latest_licensed_users": 6,
+        "latest_active_users": 5,
+        "penetration_pct_avg_12mo": 60.26,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 18721,
+        "latest_licensed_users": 29,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 60.0,
+        "months_with_activity": 5
+      },
+      {
+        "client_id": 10292,
+        "latest_licensed_users": 36,
+        "latest_active_users": 20,
+        "penetration_pct_avg_12mo": 56.84,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 101592,
+        "latest_licensed_users": 51,
+        "latest_active_users": 30,
+        "penetration_pct_avg_12mo": 56.68,
+        "months_with_activity": 11
+      },
+      {
+        "client_id": 18193,
+        "latest_licensed_users": 24,
+        "latest_active_users": 12,
+        "penetration_pct_avg_12mo": 56.41,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 10963,
+        "latest_licensed_users": 14,
+        "latest_active_users": 3,
+        "penetration_pct_avg_12mo": 54.95,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 18038,
+        "latest_licensed_users": 7,
+        "latest_active_users": 2,
+        "penetration_pct_avg_12mo": 54.94,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 17772,
+        "latest_licensed_users": 5,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 54.29,
+        "months_with_activity": 7
+      },
+      {
+        "client_id": 101900,
+        "latest_licensed_users": 10,
+        "latest_active_users": 5,
+        "penetration_pct_avg_12mo": 52.5,
+        "months_with_activity": 8
+      },
+      {
+        "client_id": 17573,
+        "latest_licensed_users": 19,
+        "latest_active_users": 8,
+        "penetration_pct_avg_12mo": 51.82,
+        "months_with_activity": 13
+      }
+    ],
+    "bottom_clients": [
+      {
+        "client_id": 14181,
+        "latest_licensed_users": 291,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 0.34,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 15677,
+        "latest_licensed_users": 132,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 0.76,
+        "months_with_activity": 3
+      },
+      {
+        "client_id": 8742,
+        "latest_licensed_users": 1171,
+        "latest_active_users": 10,
+        "penetration_pct_avg_12mo": 1.13,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 16491,
+        "latest_licensed_users": 198,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 1.13,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 14869,
+        "latest_licensed_users": 137,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 1.22,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 18671,
+        "latest_licensed_users": 176,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 1.24,
+        "months_with_activity": 11
+      },
+      {
+        "client_id": 18673,
+        "latest_licensed_users": 77,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 1.3,
+        "months_with_activity": 8
+      },
+      {
+        "client_id": 1715,
+        "latest_licensed_users": 405,
+        "latest_active_users": 7,
+        "penetration_pct_avg_12mo": 1.58,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 16431,
+        "latest_licensed_users": 1675,
+        "latest_active_users": 37,
+        "penetration_pct_avg_12mo": 1.7,
+        "months_with_activity": 13
+      },
+      {
+        "client_id": 101092,
+        "latest_licensed_users": 83,
+        "latest_active_users": 3,
+        "penetration_pct_avg_12mo": 1.97,
+        "months_with_activity": 11
+      },
+      {
+        "client_id": 18344,
+        "latest_licensed_users": 50,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 2.0,
+        "months_with_activity": 4
+      },
+      {
+        "client_id": 3923,
+        "latest_licensed_users": 56,
+        "latest_active_users": 0,
+        "penetration_pct_avg_12mo": 2.15,
+        "months_with_activity": 5
+      },
+      {
+        "client_id": 19760,
+        "latest_licensed_users": 58,
+        "latest_active_users": 1,
+        "penetration_pct_avg_12mo": 2.58,
+        "months_with_activity": 12
+      },
+      {
+        "client_id": 14979,
+        "latest_licensed_users": 92,
+        "latest_active_users": 5,
+        "penetration_pct_avg_12mo": 2.72,
+        "months_with_activity": 6
+      },
+      {
+        "client_id": 15027,
+        "latest_licensed_users": 2226,
+        "latest_active_users": 67,
+        "penetration_pct_avg_12mo": 3.08,
+        "months_with_activity": 13
+      }
+    ]
+  }
+}

@@ -500,6 +500,39 @@
     </div>
   </div>
 
+  <div class="section-title">User penetration — POs vs Invoices</div>
+  <p class="section-subtitle">Of the licensed (company_user_type_id=2, non-disabled) users at each client, how many actually created or edited a PO / Invoice in the trailing 12 months?</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">PO — licensed-user penetration</div>
+      <div class="card-desc" style="margin-bottom:12px">Latest month + 12-mo trend. System users (21/48/67/77) excluded.</div>
+      <div id="penetration-po-slot" style="min-height:200px"><div style="display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px;height:180px"><span class="placeholder-badge">Loading…</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Invoice — licensed-user penetration</div>
+      <div class="card-desc" style="margin-bottom:12px">Latest month + 12-mo trend. System users (21/48/67/77) excluded.</div>
+      <div id="penetration-invoice-slot" style="min-height:200px"><div style="display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px;height:180px"><span class="placeholder-badge">Loading…</span></div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Early-pay discount adoption</div>
+  <p class="section-subtitle">
+    Config gap first, capture rate second. Uses the archived ap_payee_terms snapshot from 2025-03-21 — see <em>Notes</em> below.
+    Any discount terms configured or edited after that date are invisible here until DBRE restores the live mirror.
+  </p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Config gap — clients with any discount terms defined</div>
+      <div class="card-desc" style="margin-bottom:12px">Includes the "defined but no vendors tagged" cohort — pure activation gap.</div>
+      <div id="early-pay-config-slot" style="min-height:180px"><div style="display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px;height:160px"><span class="placeholder-badge">Loading…</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Capture rate on the configured cohort (12 mo)</div>
+      <div class="card-desc" style="margin-bottom:12px">Portfolio $ available / captured / missed and top clients by missed dollars.</div>
+      <div id="early-pay-capture-slot" style="min-height:180px"><div style="display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px;height:160px"><span class="placeholder-badge">Loading…</span></div></div>
+    </div>
+  </div>
+
   <div class="section-title">Release-track cadence</div>
   <p class="section-subtitle">Rapid clients ship every sprint (~5% of the book). Standard clients ship 4x/year. This view answers: is new PO/Invoice activity concentrated in Rapid or Standard?</p>
   <div class="placeholder-card">
@@ -558,10 +591,10 @@
       <div class="card"><div class="card-title">Active Clients Using Invoices</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
       <div class="card"><div class="card-title">End-to-End Processing Time</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
       <div class="card"><div class="card-title">First-Time-Right Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">Early Pay Discount Capture</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card"><div class="card-title">Early Pay Discount Capture</div><div class="stat-value pending" id="health-invoice-early-pay-value" style="margin-top:8px">—</div><div class="card-desc" id="health-invoice-early-pay-sub" style="margin-top:6px">Loading…</div></div>
       <div class="card"><div class="card-title">PO-to-Invoice Cycle Time</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
       <div class="card"><div class="card-title">Rejection Rate</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
-      <div class="card"><div class="card-title">User Penetration</div><div class="stat-value pending" style="margin-top:8px">—</div></div>
+      <div class="card"><div class="card-title">User Penetration</div><div class="stat-value pending" id="health-invoice-penetration-value" style="margin-top:8px">—</div><div class="card-desc" id="health-invoice-penetration-sub" style="margin-top:6px">Loading…</div></div>
     </div>
   </div>
 
@@ -701,6 +734,8 @@ Promise.all([
   loadData('invoiceSourceMix', './data/invoice-source-mix.json'),
   loadData('poAdoption', './data/po-adoption.json'),
   loadData('invoiceAdoption', './data/invoice-adoption.json'),
+  loadData('userPenetration', './data/user-penetration.json'),
+  loadData('earlyPay', './data/early-pay.json'),
   loadData('ipsCorrections', './data/ips-corrections.json'),
   loadData('clientVoice', './data/client-voice.json'),
   loadData('roadmap', './data/roadmap.json'),
@@ -771,6 +806,8 @@ function hydrate() {
   hydrateInvoiceRow();
   hydrateAdoption();
   hydrateInvoiceAdoption();
+  hydrateUserPenetration();
+  hydrateEarlyPay();
   hydratePoMonthlyChart();
   hydrateInvoiceSourceMixChart();
   hydrateHealthPoKpis();
@@ -1458,6 +1495,139 @@ function hydrateInvoiceSourceMixChart() {
       },
     },
   });
+}
+
+/* -----------------------------------------------------------------
+   User penetration (POs + Invoices) — hydrated from
+   data/user-penetration.json (see scripts/build_user_penetration.py).
+   ----------------------------------------------------------------- */
+function hydrateUserPenetration() {
+  const up = state.userPenetration;
+  if (!up) return;
+  renderPenetrationCard('penetration-po-slot', up.po, 'PO');
+  renderPenetrationCard('penetration-invoice-slot', up.invoice, 'Invoice');
+
+  const invLatest = up.invoice && up.invoice.portfolio ? up.invoice.portfolio.penetration_pct_latest : null;
+  const invClients = up.invoice && up.invoice.portfolio ? up.invoice.portfolio.clients_with_activity : 0;
+  const val = document.getElementById('health-invoice-penetration-value');
+  const sub = document.getElementById('health-invoice-penetration-sub');
+  if (val) {
+    val.classList.remove('pending');
+    val.textContent = invLatest == null ? '—' : `${invLatest.toFixed(1)}%`;
+  }
+  if (sub) sub.textContent = `${invClients} active clients last 12 mo · portfolio-current denominator`;
+}
+
+function renderPenetrationCard(slotId, side, label) {
+  const el = document.getElementById(slotId);
+  if (!el || !side || !side.portfolio) return;
+  const p = side.portfolio;
+  const monthly = Array.isArray(side.monthly) ? side.monthly : [];
+  const latestPct = p.penetration_pct_latest == null ? '—' : `${p.penetration_pct_latest.toFixed(1)}%`;
+  const avgPct = p.penetration_pct_avg_12mo == null ? '—' : `${p.penetration_pct_avg_12mo.toFixed(1)}%`;
+
+  // Simple inline sparkline built from monthly rates.
+  const pctSeries = monthly.map(m => m.penetration_pct == null ? 0 : m.penetration_pct);
+  const maxP = Math.max(1, ...pctSeries);
+  const bars = pctSeries.map((v, i) => {
+    const h = Math.round((v / maxP) * 44);
+    const m = monthly[i] || {};
+    const title = `${m.period_month}: ${v.toFixed(1)}% (${fmtNum(m.active_users)} of ${fmtNum(m.total_licensed_users)})`;
+    return `<div title="${title}" style="flex:1;height:${Math.max(2,h)}px;background:var(--accent);opacity:0.85;border-radius:2px 2px 0 0"></div>`;
+  }).join('');
+
+  const bottom = Array.isArray(side.bottom_clients) ? side.bottom_clients.slice(0, 3) : [];
+  const bottomList = bottom.map(c => `<li><strong>Client ${c.client_id}</strong> — ${c.penetration_pct_avg_12mo == null ? '—' : c.penetration_pct_avg_12mo.toFixed(1) + '%'} of ${fmtNum(c.latest_licensed_users)} licensed</li>`).join('');
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+      <div class="stat-value" style="font-size:32px">${latestPct}</div>
+      <div style="color:var(--subtle);font-size:12px">latest month · 12-mo avg ${avgPct}</div>
+    </div>
+    <div style="color:var(--subtle);font-size:12px;margin-bottom:8px">
+      ${fmtNum(p.active_users_latest_month)} of ${fmtNum(p.total_licensed_users)} licensed users · ${p.clients_with_activity} active clients
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:2px;height:48px;margin-bottom:10px">${bars}</div>
+    ${bottomList ? `<div style="font-size:12px;color:var(--subtle);border-top:1px solid var(--line);padding-top:8px"><strong style="color:var(--body)">Lowest-penetration clients (12-mo avg):</strong><ul style="margin:6px 0 0 16px;padding:0">${bottomList}</ul></div>` : ''}
+  `;
+}
+
+/* -----------------------------------------------------------------
+   Early-pay discount adoption — hydrated from data/early-pay.json
+   (see scripts/build_early_pay.py). Two cards + Health tile.
+   ----------------------------------------------------------------- */
+function hydrateEarlyPay() {
+  const ep = state.earlyPay;
+  if (!ep) return;
+
+  // Config-gap card
+  const cfg = document.getElementById('early-pay-config-slot');
+  if (cfg && ep.config_gap) {
+    const g = ep.config_gap;
+    cfg.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        <div>
+          <div class="stat-value" style="font-size:28px">${fmtNum(g.clients_with_terms_configured)}</div>
+          <div style="color:var(--subtle);font-size:12px">clients with any discount terms</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size:28px">${fmtNum(g.clients_with_terms_but_no_vendors)}</div>
+          <div style="color:var(--subtle);font-size:12px">of those with <em>no vendors tagged</em> (pure config gap)</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size:28px">${fmtNum(g.total_terms_defined)}</div>
+          <div style="color:var(--subtle);font-size:12px">total discount terms defined portfolio-wide</div>
+        </div>
+      </div>
+      <div style="color:var(--subtle);font-size:12px;border-top:1px solid var(--line);padding-top:8px">
+        Snapshot: ap_payee_terms_removed_03_21_25 (March 2025). Post-March config is invisible.
+      </div>`;
+  }
+
+  // Capture card
+  const cap = document.getElementById('early-pay-capture-slot');
+  if (cap && ep.capture_portfolio) {
+    const p = ep.capture_portfolio;
+    const top = Array.isArray(ep.clients) ? ep.clients.slice(0, 3) : [];
+    const topList = top.map(c => `<li><strong>Client ${c.client_id}</strong> — ${fmtCurrency(c.missed_12mo)} missed on ${fmtNum(c.eligible_invoices_12mo)} invoices (${c.capture_rate_pct_12mo == null ? '—' : c.capture_rate_pct_12mo.toFixed(1) + '%'} captured)</li>`).join('');
+    cap.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        <div>
+          <div class="stat-value" style="font-size:26px">${p.capture_rate_pct_12mo == null ? '—' : p.capture_rate_pct_12mo.toFixed(1) + '%'}</div>
+          <div style="color:var(--subtle);font-size:12px">12-mo capture rate (weighted \$)</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size:26px">${fmtCurrency(p.discount_available_sum_12mo)}</div>
+          <div style="color:var(--subtle);font-size:12px">available (12 mo)</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size:26px;color:var(--warn)">${fmtCurrency(p.discount_missed_sum_12mo)}</div>
+          <div style="color:var(--subtle);font-size:12px">missed (12 mo)</div>
+        </div>
+      </div>
+      ${topList ? `<div style="font-size:12px;border-top:1px solid var(--line);padding-top:8px"><strong>Top missed-\$ clients:</strong><ul style="margin:6px 0 0 16px;padding:0;color:var(--subtle)">${topList}</ul></div>` : ''}
+    `;
+  }
+
+  // Health-tab "Early Pay Discount Capture" tile
+  const val = document.getElementById('health-invoice-early-pay-value');
+  const sub = document.getElementById('health-invoice-early-pay-sub');
+  if (val && ep.capture_portfolio) {
+    val.classList.remove('pending');
+    const r = ep.capture_portfolio.capture_rate_pct_12mo;
+    val.textContent = r == null ? '—' : `${r.toFixed(1)}%`;
+  }
+  if (sub && ep.capture_portfolio) {
+    sub.textContent = `${fmtCurrency(ep.capture_portfolio.discount_missed_sum_12mo)} missed · ${ep.capture_portfolio.clients_with_activity} active clients (March 2025 config snapshot)`;
+  }
+}
+
+function fmtCurrency(n) {
+  if (n == null || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  if (abs >= 1e6) return `$${(n/1e6).toFixed(1)}M`;
+  if (abs >= 1e3) return `$${(n/1e3).toFixed(0)}K`;
+  return `$${n.toFixed(0)}`;
 }
 
 function updateRefreshDates() {
