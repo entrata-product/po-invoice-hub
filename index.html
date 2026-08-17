@@ -328,6 +328,7 @@
   </div>
   <nav class="tabs">
     <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="opportunities">Opportunities</button>
     <button class="tab-btn" data-tab="adoption">Adoption</button>
     <button class="tab-btn" data-tab="health">Health</button>
     <button class="tab-btn" data-tab="client-voice">Client Voice</button>
@@ -474,6 +475,20 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- ============================================================================ -->
+<!-- ADVANCED — TAB: OPPORTUNITIES BOARD -->
+<!-- ============================================================================ -->
+<div class="tab-content" id="tab-opportunities">
+  <div class="section-title">Opportunities board</div>
+  <p class="section-subtitle">
+    Candidate epics ranked by signal breadth &times; dollarizable impact &times; design-partner readiness.
+    Every row cites the underlying evidence — click through to the deep-dives on the CS Toolkit tab.
+    Reorder freely; this is John's read, not a decision.
+  </p>
+  <div id="opportunities-summary" style="margin-bottom:16px;color:var(--subtle);font-size:12px">Loading…</div>
+  <div id="opportunities-slot"><div class="placeholder-card"><div class="card-title">Opportunities loading…</div></div></div>
 </div>
 
 <!-- ============================================================================ -->
@@ -736,6 +751,7 @@ Promise.all([
   loadData('invoiceAdoption', './data/invoice-adoption.json'),
   loadData('userPenetration', './data/user-penetration.json'),
   loadData('earlyPay', './data/early-pay.json'),
+  loadData('opportunities', './data/opportunities.json'),
   loadData('ipsCorrections', './data/ips-corrections.json'),
   loadData('clientVoice', './data/client-voice.json'),
   loadData('roadmap', './data/roadmap.json'),
@@ -808,6 +824,7 @@ function hydrate() {
   hydrateInvoiceAdoption();
   hydrateUserPenetration();
   hydrateEarlyPay();
+  hydrateOpportunities();
   hydratePoMonthlyChart();
   hydrateInvoiceSourceMixChart();
   hydrateHealthPoKpis();
@@ -896,7 +913,7 @@ function hydrateRejectionReasons() {
     .map(b => {
       const pct = total ? (100 * b.occurrences / total) : 0;
       return `
-        <div style="display:grid;grid-template-columns:170px 1fr 60px;gap:12px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px">
+        <div style="display:grid;grid-template-columns:170px 1fr 60px;gap:12px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px">
           <div style="font-weight:600">${b.bucket}</div>
           <div style="background:var(--surface2);border-radius:4px;height:8px;position:relative;overflow:hidden">
             <div style="position:absolute;left:0;top:0;bottom:0;background:var(--danger,#ef4444);width:${Math.min(100, pct)}%"></div>
@@ -909,7 +926,7 @@ function hydrateRejectionReasons() {
     <div style="width:100%;padding:4px 4px 6px">
       <div style="font-size:11px;color:var(--subtle);margin-bottom:8px">Derived from top-20 free-text notes, last 12mo (${fmtNum(total)} classified rejections)</div>
       ${rows}
-      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--subtle);font-size:11px;line-height:1.5">
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);color:var(--subtle);font-size:11px;line-height:1.5">
         Pallavi's ILIKE keyword categorization put 80.8% of ~48k rejections in "OTHER".
         The derived buckets above come from the actual dominant free-text notes and expose the real recovery opportunities.
       </div>
@@ -998,7 +1015,7 @@ function openDeepDive(clientId) {
   const currentMonth = (d.monthly_trend || []).slice(-1)[0] || {};
   const peakMonth = (d.monthly_trend || []).reduce((a, b) => (a.rejection_rate_pct > (b.rejection_rate_pct || 0) ? a : b), { rejection_rate_pct: 0 });
   const topBucketsHtml = (d.derived_buckets || []).slice(0, 5).map(b => `
-    <div style="display:grid;grid-template-columns:1fr 60px 50px;gap:10px;padding:4px 0;font-size:12px;border-bottom:1px solid var(--line)">
+    <div style="display:grid;grid-template-columns:1fr 60px 50px;gap:10px;padding:4px 0;font-size:12px;border-bottom:1px solid var(--border)">
       <div>${b.bucket}</div>
       <div style="text-align:right;font-variant-numeric:tabular-nums">${fmtNum(b.occurrences)}</div>
       <div style="text-align:right;font-variant-numeric:tabular-nums;color:var(--subtle)">${b.share_of_rejections_pct}%</div>
@@ -1038,7 +1055,7 @@ function openDeepDive(clientId) {
           <div style="font-size:22px;font-weight:700">${c.name}</div>
           <div style="font-size:12px;color:var(--subtle);margin-top:4px">cid ${c.cid} \u00b7 ${d._run_ts ? new Date(d._run_ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</div>
         </div>
-        <button onclick="closeDeepDive()" style="background:none;border:1px solid var(--line);border-radius:4px;padding:6px 12px;cursor:pointer;color:var(--ink)">Close</button>
+        <button onclick="closeDeepDive()" style="background:none;border:1px solid var(--border);border-radius:4px;padding:6px 12px;cursor:pointer;color:var(--ink)">Close</button>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
@@ -1070,7 +1087,7 @@ function openDeepDive(clientId) {
         <div>
           <div style="font-weight:600;font-size:14px;margin-bottom:12px">By property</div>
           <table style="width:100%;font-size:12px;border-collapse:collapse">
-            <thead><tr style="border-bottom:1px solid var(--line);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">Property</th><th style="text-align:right;padding:4px 8px">POs</th><th style="text-align:right;padding:4px 8px">Rej.</th><th style="text-align:right;padding:4px 8px">Rate</th></tr></thead>
+            <thead><tr style="border-bottom:1px solid var(--border);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">Property</th><th style="text-align:right;padding:4px 8px">POs</th><th style="text-align:right;padding:4px 8px">Rej.</th><th style="text-align:right;padding:4px 8px">Rate</th></tr></thead>
             <tbody>${propRows}</tbody>
           </table>
           ${d.property_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.property_narrative}</div>` : ''}
@@ -1078,7 +1095,7 @@ function openDeepDive(clientId) {
         <div>
           <div style="font-weight:600;font-size:14px;margin-bottom:12px">Top rejected vendors</div>
           <table style="width:100%;font-size:12px;border-collapse:collapse">
-            <thead><tr style="border-bottom:1px solid var(--line);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">Vendor</th><th style="text-align:right;padding:4px 8px">Rej.</th><th style="text-align:right;padding:4px 8px">Rate</th></tr></thead>
+            <thead><tr style="border-bottom:1px solid var(--border);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">Vendor</th><th style="text-align:right;padding:4px 8px">Rej.</th><th style="text-align:right;padding:4px 8px">Rate</th></tr></thead>
             <tbody>${vendorRows}</tbody>
           </table>
           ${d.vendor_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.vendor_narrative}</div>` : ''}
@@ -1088,7 +1105,7 @@ function openDeepDive(clientId) {
       <div style="margin-bottom:12px">
         <div style="font-weight:600;font-size:14px;margin-bottom:12px">Top rejecters (user names not mirrored to Redshift; resolve in Entrata)</div>
         <table style="width:100%;font-size:12px;border-collapse:collapse">
-          <thead><tr style="border-bottom:1px solid var(--line);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">User</th><th style="text-align:left;padding:4px 8px">Title</th><th style="text-align:right;padding:4px 8px">Events</th><th style="text-align:right;padding:4px 8px">Share</th></tr></thead>
+          <thead><tr style="border-bottom:1px solid var(--border);color:var(--subtle)"><th style="text-align:left;padding:4px 8px">User</th><th style="text-align:left;padding:4px 8px">Title</th><th style="text-align:right;padding:4px 8px">Events</th><th style="text-align:right;padding:4px 8px">Share</th></tr></thead>
           <tbody>${userRows}</tbody>
         </table>
         ${d.rejecter_narrative ? `<div style="font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5">${d.rejecter_narrative}</div>` : ''}
@@ -1151,7 +1168,7 @@ function sortEpicsForDisplay(epics) {
 
 function epicCardHtml(e) {
   return `
-    <div style="padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);margin-bottom:8px">
+    <div style="padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);margin-bottom:8px">
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
         <a href="${e.url}" target="_blank" style="font-weight:600;font-size:12px;color:var(--accent);text-decoration:none">${e.key}</a>
         ${priorityBadgeHtml(e.priority)}
@@ -1274,7 +1291,7 @@ function hydrateAdoption() {
   const rows = k.by_segment
     .filter(s => s.segment !== 'Unknown')
     .map(s => `
-      <div style="display:grid;grid-template-columns:120px 1fr 60px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)">
+      <div style="display:grid;grid-template-columns:120px 1fr 60px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
         <div><strong>${s.segment}</strong></div>
         <div style="background:var(--surface2);border-radius:4px;height:8px;position:relative;overflow:hidden">
           <div style="position:absolute;left:0;top:0;bottom:0;background:var(--accent);width:${Math.min(100, s.adoption_pct)}%"></div>
@@ -1283,7 +1300,7 @@ function hydrateAdoption() {
       </div>
     `).join('');
   const portfolioRow = k.portfolio_totals
-    ? `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--line);color:var(--subtle);font-size:12px">Portfolio: ${k.portfolio_totals.transacting_12mo}/${k.portfolio_totals.live_clients} clients transacting last 12 months (${k.portfolio_totals.overall_adoption_pct}%)</div>`
+    ? `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);color:var(--subtle);font-size:12px">Portfolio: ${k.portfolio_totals.transacting_12mo}/${k.portfolio_totals.live_clients} clients transacting last 12 months (${k.portfolio_totals.overall_adoption_pct}%)</div>`
     : '';
   inner.outerHTML = `<div style="width:100%;padding:4px 0">${rows}${portfolioRow}</div>`;
 }
@@ -1434,7 +1451,7 @@ function hydrateInvoiceAdoption() {
     .map(s => {
       const pct = s.pct !== null && s.pct !== undefined ? s.pct : (total ? (100 * s.invoice_count / total) : 0);
       return `
-        <div style="display:grid;grid-template-columns:120px 1fr 90px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)">
+        <div style="display:grid;grid-template-columns:120px 1fr 90px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
           <div><strong>${s.segment}</strong></div>
           <div style="background:var(--surface2);border-radius:4px;height:8px;position:relative;overflow:hidden">
             <div style="position:absolute;left:0;top:0;bottom:0;background:var(--accent);width:${Math.min(100, pct)}%"></div>
@@ -1443,7 +1460,7 @@ function hydrateInvoiceAdoption() {
         </div>
       `;
     }).join('');
-  const footer = `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--line);color:var(--subtle);font-size:12px">Trailing 12 months: ${fmtNum(total)} invoices across ${k.by_segment.length} segment${k.by_segment.length === 1 ? '' : 's'}.</div>`;
+  const footer = `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);color:var(--subtle);font-size:12px">Trailing 12 months: ${fmtNum(total)} invoices across ${k.by_segment.length} segment${k.by_segment.length === 1 ? '' : 's'}.</div>`;
   inner.outerHTML = `<div style="width:100%;padding:4px 0">${rows}${footer}</div>`;
 }
 
@@ -1548,7 +1565,7 @@ function renderPenetrationCard(slotId, side, label) {
       ${fmtNum(p.active_users_latest_month)} of ${fmtNum(p.total_licensed_users)} licensed users · ${p.clients_with_activity} active clients
     </div>
     <div style="display:flex;align-items:flex-end;gap:2px;height:48px;margin-bottom:10px">${bars}</div>
-    ${bottomList ? `<div style="font-size:12px;color:var(--subtle);border-top:1px solid var(--line);padding-top:8px"><strong style="color:var(--body)">Lowest-penetration clients (12-mo avg):</strong><ul style="margin:6px 0 0 16px;padding:0">${bottomList}</ul></div>` : ''}
+    ${bottomList ? `<div style="font-size:12px;color:var(--subtle);border-top:1px solid var(--border);padding-top:8px"><strong style="color:var(--fg)">Lowest-penetration clients (12-mo avg):</strong><ul style="margin:6px 0 0 16px;padding:0">${bottomList}</ul></div>` : ''}
   `;
 }
 
@@ -1579,7 +1596,7 @@ function hydrateEarlyPay() {
           <div style="color:var(--subtle);font-size:12px">total discount terms defined portfolio-wide</div>
         </div>
       </div>
-      <div style="color:var(--subtle);font-size:12px;border-top:1px solid var(--line);padding-top:8px">
+      <div style="color:var(--subtle);font-size:12px;border-top:1px solid var(--border);padding-top:8px">
         Snapshot: ap_payee_terms_removed_03_21_25 (March 2025). Post-March config is invisible.
       </div>`;
   }
@@ -1605,7 +1622,7 @@ function hydrateEarlyPay() {
           <div style="color:var(--subtle);font-size:12px">missed (12 mo)</div>
         </div>
       </div>
-      ${topList ? `<div style="font-size:12px;border-top:1px solid var(--line);padding-top:8px"><strong>Top missed-\$ clients:</strong><ul style="margin:6px 0 0 16px;padding:0;color:var(--subtle)">${topList}</ul></div>` : ''}
+      ${topList ? `<div style="font-size:12px;border-top:1px solid var(--border);padding-top:8px"><strong>Top missed-\$ clients:</strong><ul style="margin:6px 0 0 16px;padding:0;color:var(--subtle)">${topList}</ul></div>` : ''}
     `;
   }
 
@@ -1628,6 +1645,126 @@ function fmtCurrency(n) {
   if (abs >= 1e6) return `$${(n/1e6).toFixed(1)}M`;
   if (abs >= 1e3) return `$${(n/1e3).toFixed(0)}K`;
   return `$${n.toFixed(0)}`;
+}
+
+/* -----------------------------------------------------------------
+   Opportunities Board — hydrated from data/opportunities.json.
+   Renders ranked cards with sizing, signals, design partners,
+   related epics, and status.
+   ----------------------------------------------------------------- */
+function hydrateOpportunities() {
+  const o = state.opportunities;
+  if (!o || !Array.isArray(o.opportunities)) return;
+
+  const list = o.opportunities.slice().sort((a, b) => (a.rank || 999) - (b.rank || 999));
+  const netNewCount = list.filter(x => x.net_new).length;
+  const inRoadmapCount = list.length - netNewCount;
+
+  const summary = document.getElementById('opportunities-summary');
+  if (summary) {
+    summary.innerHTML = `<strong>${list.length}</strong> candidates &middot; <strong>${netNewCount}</strong> net-new &middot; <strong>${inRoadmapCount}</strong> already in the roadmap &middot; last read: ${o._run_ts ? o._run_ts.slice(0,10) : 'unknown'}`;
+  }
+
+  const slot = document.getElementById('opportunities-slot');
+  if (!slot) return;
+
+  slot.innerHTML = list.map(op => renderOpportunityCard(op)).join('');
+}
+
+function renderOpportunityCard(op) {
+  const s = op.sizing || {};
+  const primary = s.primary_value == null ? '—' :
+    (s.primary_unit && /USD|\$/.test(s.primary_unit) ? fmtCurrency(s.primary_value) : fmtNum(s.primary_value));
+  const secondary = s.secondary_value == null ? null :
+    (s.secondary_unit && /USD|\$/.test(s.secondary_unit) ? fmtCurrency(s.secondary_value) : fmtNum(s.secondary_value));
+  const conf = (s.confidence || '').toLowerCase();
+  const confColor = conf === 'high' ? 'var(--good)' : conf === 'medium' ? 'var(--warn)' : 'var(--subtle)';
+  const effortColor = op.effort_tier === 'S' ? 'var(--good)' : op.effort_tier === 'L' ? 'var(--warn)' : 'var(--accent)';
+  const statusBadge = op.net_new
+    ? `<span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px">Net-new</span>`
+    : `<span style="background:#eab308;color:#000;padding:2px 8px;border-radius:10px;font-size:11px">In roadmap</span>`;
+
+  const topClient = s.top_client
+    ? `<div style="font-size:12px;color:var(--subtle);margin-top:4px">Top client: <strong style="color:var(--fg)">${escapeHtml(s.top_client.company_name || '')}</strong> — ${fmtNum(s.top_client.value)} ${escapeHtml(s.top_client.unit || '')}</div>`
+    : '';
+
+  const sources = (op.signal_sources || []).map(src => {
+    const ref = src.artifact_ref ? `<code style="font-size:11px;color:var(--subtle)">${escapeHtml(src.artifact_ref)}</code>` : '';
+    return `<li style="margin:2px 0">${escapeHtml(src.label)} ${ref}</li>`;
+  }).join('');
+
+  const partners = (op.design_partner_candidates || []).map(p =>
+    `<li style="margin:4px 0"><strong>${escapeHtml(p.company_name)}</strong> <span style="color:var(--subtle);font-size:11px">(${p.client_id})</span> — ${escapeHtml(p.why)}</li>`
+  ).join('');
+
+  const relatedEpics = (op.related_epics || []).map(e =>
+    `<li style="margin:2px 0"><a href="${escapeHtml(e.url)}" target="_blank" rel="noopener" style="color:var(--accent)">${escapeHtml(e.key)}</a> <span style="color:var(--subtle)">[${escapeHtml(e.release || '?')}]</span> — ${escapeHtml(e.summary)}</li>`
+  ).join('');
+
+  const blockers = (op.blockers || []).map(b => `<li style="margin:2px 0;color:var(--warn)">${escapeHtml(b)}</li>`).join('');
+
+  const secondaryBlock = secondary != null && s.secondary_metric_label
+    ? `<div><div class="stat-value" style="font-size:22px">${secondary}</div><div style="color:var(--subtle);font-size:11px">${escapeHtml(s.secondary_metric_label)} (${escapeHtml(s.secondary_unit || '')})</div></div>`
+    : '';
+
+  const cardStyle = op.net_new
+    ? 'border-left:4px solid var(--accent)'
+    : 'border-left:4px solid #eab308';
+
+  return `
+    <div class="card" style="margin-bottom:16px;padding:20px;${cardStyle}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <span style="font-size:13px;color:var(--subtle);font-weight:600">#${op.rank || '?'}</span>
+            <span class="card-title" style="font-size:16px">${escapeHtml(op.title)}</span>
+            ${statusBadge}
+          </div>
+          <div style="color:var(--subtle);font-size:13px;line-height:1.5">${escapeHtml(op.one_liner)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="display:inline-block;padding:2px 10px;background:${effortColor};color:#fff;border-radius:10px;font-size:11px;font-weight:600">Effort ${op.effort_tier || '?'}</div>
+          <div style="margin-top:4px;font-size:11px;color:${confColor};text-transform:uppercase">${escapeHtml(conf || '—')} confidence</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:16px;padding:12px 0;margin:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);align-items:center">
+        <div>
+          <div class="stat-value" style="font-size:26px">${primary}</div>
+          <div style="color:var(--subtle);font-size:11px">${escapeHtml(s.primary_metric_label || '')} (${escapeHtml(s.primary_unit || '')})</div>
+        </div>
+        ${secondaryBlock}
+        <div style="text-align:right">
+          <div class="stat-value" style="font-size:22px">${fmtNum(s.affected_clients || 0)}</div>
+          <div style="color:var(--subtle);font-size:11px">affected clients</div>
+        </div>
+      </div>
+
+      ${topClient}
+
+      <details style="margin-top:10px">
+        <summary style="cursor:pointer;color:var(--accent);font-size:13px;font-weight:600">Problem signal + evidence</summary>
+        <div style="padding:10px 0;color:var(--fg);font-size:13px;line-height:1.5">${escapeHtml(op.problem_signal || '')}</div>
+        ${sources ? `<div style="font-size:12px;color:var(--subtle);margin-top:6px"><strong>Sources:</strong><ul style="margin:4px 0 0 16px;padding:0">${sources}</ul></div>` : ''}
+      </details>
+
+      ${partners ? `<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--accent);font-size:13px;font-weight:600">Design-partner candidates (${op.design_partner_candidates.length})</summary><ul style="margin:8px 0 0 16px;padding:0;font-size:13px;color:var(--fg)">${partners}</ul></details>` : ''}
+
+      ${relatedEpics ? `<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--accent);font-size:13px;font-weight:600">Related roadmap epics (${op.related_epics.length})</summary><ul style="margin:8px 0 0 16px;padding:0;font-size:13px">${relatedEpics}</ul></details>` : ''}
+
+      ${blockers ? `<div style="margin-top:10px;padding:8px;background:var(--warn-bg);border-left:3px solid var(--warn);font-size:12px"><strong style="color:var(--warn)">Blockers:</strong><ul style="margin:4px 0 0 16px;padding:0">${blockers}</ul></div>` : ''}
+
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px;color:var(--subtle)">
+        <div><strong>Effort note:</strong> ${escapeHtml(op.effort_note || '—')}</div>
+        <div>Owner: <strong style="color:var(--fg)">${escapeHtml(op.product_owner || '—')}</strong>${op.cross_suite_owner ? ` &middot; cross-suite w/ ${escapeHtml(op.cross_suite_owner)}` : ''}</div>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 
 function updateRefreshDates() {
