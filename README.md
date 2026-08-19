@@ -1,70 +1,29 @@
-# PO/Invoice Hub
+# PO/Invoice Hub — moved
 
-A single-view dashboard for the AP suite: **Purchase Orders, Invoices, Invoice Processing (IPS), and ELI Invoice Entry**.
+This repository has moved to **[Entrata-Collab/po-invoice-hub](https://github.com/Entrata-Collab/po-invoice-hub)**.
 
-Sibling to the [Vendor Enablement Hub](https://github.com/entrata-product/vendor-enablement-hub) — same architecture, different product area.
+**Live URL (Entrata VPN required):** http://po-invoice.prototype.entrata.io/
 
-## What it does
+## Why the move
 
-Six narrative tabs, each answering a question a director/CSM/PM would actually ask:
+The hub grew from a research artifact into a cross-team decision surface (Product, CS, Finance leadership). It now lives in `Entrata-Collab` alongside its sibling [`vendor-enablement-hub`](https://github.com/Entrata-Collab/vendor-enablement-hub) so people outside R&D can find and contribute to it.
 
-| Tab | Question | Data source |
-|---|---|---|
-| **Overview** | How is the AP suite doing at a glance? | Aggregate KPIs across all 4 products |
-| **Adoption** | Who's using each product, by segment and release track? | `client_segment` + `client_release_track` from Pallavi's SQL |
-| **Health** | For product X — what are all the operational metrics? | Full 9-KPI grid per product (matches Pallavi's Domo mocks) |
-| **Client Voice** | What are clients saying about the AP suite? | NPS + Zendesk + Gong signals filtered to AP products |
-| **Roadmap** | What's shipping next? | Live Jira pull on `PXF - Invoices` component + adjacent |
-| **CS Toolkit** | Client-specific quick wins a CSM can walk into a call with | `csm-quick-wins` skill outputs + rejection root-cause packs |
+Same rationale that moved the Vendor Enablement Hub to Collab on 2026-07-06.
 
-Two views:
-- **Focus** — executive one-page narrative (default). Six shared KPIs + 3 sections.
-- **Advanced** — full 6-tab detail.
+## What lives where now
 
-## Data sources
+| Concern | Location |
+|---|---|
+| Latest code + data | [Entrata-Collab/po-invoice-hub](https://github.com/Entrata-Collab/po-invoice-hub) |
+| Live dashboard | http://po-invoice.prototype.entrata.io/ *(VPN)* |
+| Deploy pipeline | GitHub Actions on push to `main` → ECR → ECS Fargate |
+| Refresh procedure | `Entrata-Collab/po-invoice-hub/REFRESH.md` + the `refresh-po-invoice-hub` skill in the PM workspace |
+| Historical work in this repo | Preserved verbatim — all commits through 2026-08-19 are here |
 
-**Production-ready (wire immediately):**
-- Purchase Orders → `queries/po-core-dataset.sql` (DEV-231807, Done, Pallavi Nawale)
-- IPS corrections → `csm-quick-wins` skill in the PM workspace
+## This repo is frozen
 
-**Provisional (needs dev pairing before live):**
-- Invoices → `queries/invoice-metrics.sql` (DEV-253879, Ready for Dev). Contains placeholders for `source_id` mapping and `invoice_audit_log` table — dev must resolve before running in prod.
-
-**Adjacent:**
-- Roadmap → Jira via `scripts/fetch_jira_roadmap.mjs` (same pattern as vendor-hub)
-- Client voice → NPS/Zendesk/Gong (same pattern as vendor-hub)
-
-## Layout
-
-```
-po-invoice-hub/
-├── index.html                    # Six-tab dashboard, Focus/Advanced toggle
-├── README.md                     # This file
-├── REFRESH.md                    # Manual refresh instructions
-├── data/                         # JSON files loaded at runtime
-│   ├── refresh-status.json
-│   ├── po-*.json                 # PO metrics slices
-│   ├── invoice-*.json            # Invoice metrics slices
-│   ├── ips-corrections.json
-│   ├── client-voice.json
-│   └── roadmap.json
-├── queries/                      # Canonical SQL from Pallavi
-│   ├── po-core-dataset.sql
-│   └── invoice-metrics.sql
-├── reference/                    # Read-only design source-of-truth
-│   ├── domo-po-metrics.html      # Pallavi's Domo mock for PO
-│   ├── domo-invoice-metrics.html # Pallavi's Domo mock for Invoice
-│   └── design-provenance.md
-└── scripts/                      # Refresh orchestrators
-    ├── refresh-all.sh
-    ├── refresh_redshift.py
-    └── fetch_jira_roadmap.mjs
-```
-
-## Refresh
-
-See [`REFRESH.md`](./REFRESH.md) for the manual refresh procedure, or run the `refresh-po-invoice-hub` skill from the PM workspace.
+No new commits will land here. The full history through the migration point is preserved for audit / archaeology. Please open issues, PRs, and discussions in the [Entrata-Collab repo](https://github.com/Entrata-Collab/po-invoice-hub) instead.
 
 ## Provenance
 
-Started 2026-07-06 by John Braithwaite. Design pattern lifted from [`vendor-enablement-hub`](https://github.com/entrata-product/vendor-enablement-hub). SQL sourced from Pallavi Nawale's DEV-231807 + DEV-253879 subtasks under DEV-231191 ("Metrics for Core AP KPIs R3 2026").
+Started 2026-07-06 as a sibling to `entrata-product/vendor-enablement-hub`. Migrated to `Entrata-Collab/po-invoice-hub` on 2026-08-19 (see infra commit `9366b19` in the new repo — adds Docker/ECS deploy scaffolding and moves the hub to the prototype VPC).
